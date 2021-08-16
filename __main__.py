@@ -1,9 +1,12 @@
+from discord.ext import commands
 from bot import Bot
+import os
 
 bot = Bot(
-    command_prefix="m!",
-    help_command=None,
+    command_prefix="!",
+    help_command=commands.DefaultHelpCommand(),
     description="Discord bot developed in discord.py.",
 )
 
-bot.run(token=bot.retrieve_token, reconnect=True)
+bot.load_extensions()
+bot.run(os.getenv("token"), reconnect=True)
