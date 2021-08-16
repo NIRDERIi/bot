@@ -4,6 +4,7 @@ from utils.errors import EnvError
 
 import typing
 import aiohttp
+import discord
 import os
 
 
@@ -37,6 +38,10 @@ class Bot(commands.Bot):
         if self.session:
             await self.session.close()
         await super().close()
+    
+    async def on_ready(self):
+
+        print("Logged in.")
 
     @property
     def retrieve_token(self) -> str:
@@ -56,8 +61,8 @@ class Bot(commands.Bot):
     def load_extensions(self):
 
         files = [
-            file[:3]
-            for file in os.listdir("exts")
+            "exts.{}".format(file.replace('.py', ''))
+            for file in os.listdir("exts/")
             if file.endswith(".py") and "__" not in file
         ]
 

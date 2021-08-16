@@ -1,5 +1,7 @@
 *.lock
 *.toml
+*.replit
+*.breakpoints
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
