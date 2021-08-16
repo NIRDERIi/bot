@@ -12,13 +12,13 @@ class search(commands.Cog):
     @commands.command(aliases=["yt"],
         description="Sends the first 10 videos that matches the search query",)
     @commands.cooldown(1, 10, commands.BucketType.user)
-    async def youtube(self, context: commands.Context, *, search_query: str) -> None:
+    async def youtube(self, ctx, *, search_query: str) -> None:
         searchResult = VideosSearch(search_query, limit=10)
         searchResult = searchResult.result()
         searchResult = searchResult["result"]
 
         if len(searchResult) <= 0:
-            return await context.send(
+            return await ctx.send(
                 embed=discord.Embed(
                     description="No result matches `{}`".format(search_query),
                     color=discord.Colour.red(),
@@ -47,10 +47,10 @@ class search(commands.Cog):
             ),
         )
 
-        await context.send(embed=embed)
+        await ctx.send(embed=embed)
 
     @commands.group(aliases=["git"], invoke_without_command=True, ignore_extra=False)
-    async def github(self, context: commands.Context) -> None:
+    async def github(self, ctx) -> None:
         embed = discord.Embed(
             title="Github commands",
             description="➥ Subcommands:\n" "- user\n" "- repository\n",
@@ -61,17 +61,17 @@ class search(commands.Cog):
         )
         embed.set_footer(text="run !github <subcommand>")
 
-        await context.send(embed=embed)
+        await ctx.send(embed=embed)
 
     @github.command(aliases=["find"], description="Get a github user info.")
-    async def user(self, context: commands.Context, *, user_name: str) -> None:
+    async def user(self, ctx, *, user_name: str) -> None:
         async with self.bot.session.get(
             f"https://api.github.com/users/{user_name}"
         ) as res_:
             res = await res_.json()
 
             if res_.status == 404:
-                return await context.send(
+                return await ctx.send(
                     embed=discord.Embed(
                         description="User not found: `{}`".format(user_name),
                         color=discord.Colour.red(),
@@ -95,14 +95,14 @@ class search(commands.Cog):
             f"- updated at: {parse(res['updated_at']).strftime('%d/%m/%y %H:%M')}\n"
             f"- bio: {res['bio']}",
         )
-        await context.send(embed=embed)
+        await ctx.send(embed=embed)
 
     @github.command(
         aliases=["repo"], description="Search github for a specific repository."
     )
-    async def repository(self, context: commands.Context, repo_name: str):
+    async def repository(self, ctx, repo_name: str):
         if len(repo_name.split("/")) != 2:
-            return await context.send(
+            return await ctx.send(
                 embed=discord.Embed(
                     description="that's not a valid repository, please follow this format: `username/repository`",
                     color=discord.Colour.red(),
@@ -114,7 +114,7 @@ class search(commands.Cog):
         ) as res_:
             res = await res_.json()
             if res_.status == 404:
-                return await context.send(
+                return await ctx.send(
                     embed=discord.Embed(
                         description="Repository not found: `{}`".format(repo_name),
                         color=0x2F3136,
@@ -143,7 +143,7 @@ class search(commands.Cog):
             f"- language: {res['language']}\n",
         )
 
-        await context.send(embed=embed)
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
