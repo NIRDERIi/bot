@@ -9,6 +9,7 @@ import os
 
 load_dotenv()
 
+
 class Bot(commands.Bot):
     def __init__(
         self,
@@ -33,7 +34,7 @@ class Bot(commands.Bot):
     def run(self, debug=False) -> None:
         if debug:
             self.load_extension("jishaku")
-            
+
         self.start_time = time.time()
         super().run(self.retrieve_token, reconnect=True)
 

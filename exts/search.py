@@ -9,8 +9,10 @@ class search(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=["yt"],
-        description="Sends the first 10 videos that matches the search query",)
+    @commands.command(
+        aliases=["yt"],
+        description="Sends the first 10 videos that matches the search query",
+    )
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def youtube(self, ctx, *, search_query: str) -> None:
         searchResult = VideosSearch(search_query, limit=10)
