@@ -9,4 +9,4 @@ bot = Bot(
 )
 
 bot.load_extensions()
-bot.run(os.getenv("token"), reconnect=True)
+bot.run(bot.retrieve_token, reconnect=True)
