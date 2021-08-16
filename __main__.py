@@ -1,3 +1,9 @@
+"""
+MIT License (read LICENSE for details)
+
+Copyright (c) 2021 NIRDERIi, gr-imm
+"""
+
 from discord.ext import commands
 from discord import Intents
 from bot import Bot
