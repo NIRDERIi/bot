@@ -11,16 +11,20 @@ load_dotenv()
 
 
 class Bot(commands.Bot):
-
     def __init__(self, command_prefix, help_command, description, **options):
-        super().__init__(command_prefix, help_command=help_command, description=description, **options)
+        super().__init__(
+            command_prefix,
+            help_command=help_command,
+            description=description,
+            **options
+        )
         self.allowed_users = [876834244167622677, 480404983372709908]
         self.session: typing.Optional[aiohttp.ClientSession] = None
 
     async def login(self, token: str, **kwargs):
 
         await super().login(token=token, **kwargs)
-        
+
         self.session = aiohttp.ClientSession()
 
     async def close(self):
@@ -31,22 +35,25 @@ class Bot(commands.Bot):
     @property
     def retrieve_token(self):
 
-        token = os.getenv('TOKEN')
+        token = os.getenv("TOKEN")
         if not token:
-            raise EnvError('Fetching the TOKEN failed.')
+            raise EnvError("Fetching the TOKEN failed.")
         return token
 
     @property
     def retrieve_dsn(self):
 
-        dsn = os.getenv('DSN')
+        dsn = os.getenv("DSN")
         if not dsn:
-            raise EnvError('Fetching the DSN failed.')
+            raise EnvError("Fetching the DSN failed.")
 
-    @property
     def load_extensions(self):
 
-        files = [file[:3] for file in os.listdir('exts') if file.endswith('.py') and '__' not in file]
+        files = [
+            file[:3]
+            for file in os.listdir("exts")
+            if file.endswith(".py") and "__" not in file
+        ]
 
         for file in files:
 
