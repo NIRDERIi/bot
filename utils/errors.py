@@ -2,7 +2,15 @@ import discord
 from discord.ext import commands
 
 
-class EnvError(Exception):
+class StartError(Exception):
+    
+    pass
+
+class StartUpError(StartError):
+
+    pass
+
+class EnvError(StartError):
 
     pass
 

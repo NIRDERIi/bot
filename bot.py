@@ -4,6 +4,7 @@ import typing
 import aiohttp
 import os
 from dotenv import load_dotenv
+from utils.errors import EnvError
 
 
 load_dotenv()
@@ -29,4 +30,15 @@ class Bot(commands.Bot):
 
     @property
     def retrieve_token(self):
-        pass
+
+        token = os.getenv('TOKEN')
+        if not token:
+            raise EnvError('Fetching the TOKEN failed.')
+        return token
+
+    @property
+    def retrieve_dsn(self):
+
+        dsn = os.getenv('DSN')
+        if not dsn:
+            raise EnvError('Fetching the DSN failed.')
