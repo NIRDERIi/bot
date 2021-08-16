@@ -1,11 +1,11 @@
 from discord.ext import commands
 from dotenv import load_dotenv
-from utils.errors import EnvError
-
+import utils
 import typing
 import aiohttp
-import time
 import os
+import pathlib
+
 
 load_dotenv()
 
@@ -13,57 +13,37 @@ load_dotenv()
 class Bot(commands.Bot):
     def __init__(
         self,
-        default_prefix: str,
+        command_prefix: str,
         help_command: commands.HelpCommand,
         description: str,
-        **options
+        **options,
     ) -> None:
         super().__init__(
-            default_prefix,
+            command_prefix,
             help_command=help_command,
             description=description,
-            **options
+            **options,
         )
         self.allowed_users = [876834244167622677, 480404983372709908]
         self.session: typing.Optional[aiohttp.ClientSession] = None
 
-    async def login(self, token: str) -> None:
-        await super().login(token)
+    async def login(self, token: str, **kwargs):
+
+        await super().login(token=token, **kwargs)
+
         self.session = aiohttp.ClientSession()
 
-    def run(self, debug=False) -> None:
-        if debug:
-            self.load_extension("jishaku")
-
-        self.start_time = time.time()
-        super().run(self.retrieve_token, reconnect=True)
-
-    async def close(self) -> None:
+    async def close(self):
         if self.session:
             await self.session.close()
         await super().close()
-
-    async def on_ready(self) -> None:
-        print("Logged in.")
-
-    def load_extensions(self) -> None:
-
-        files = [
-            "exts.{}".format(file.replace(".py", ""))
-            for file in os.listdir("exts/")
-            if file.endswith(".py") and "__" not in file
-        ]
-
-        for file in files:
-
-            self.load_extension(file)
 
     @property
     def retrieve_token(self) -> str:
 
         token = os.getenv("TOKEN")
         if not token:
-            raise EnvError("Fetching the TOKEN failed.")
+            raise utils.errors.EnvError("Fetching the TOKEN failed.")
         return token
 
     @property
@@ -71,5 +51,43 @@ class Bot(commands.Bot):
 
         dsn = os.getenv("DSN")
         if not dsn:
-            raise EnvError("Fetching the DSN failed.")
-        return dsn
+            raise utils.errors.EnvError("Fetching the DSN failed.")
+
+    def load_extensions(self):
+
+        files = [
+            file[:-3]
+            for file in os.listdir("exts")
+            if file.endswith(".py") and "__" not in file
+        ]
+
+        # Just to make sure loop.
+        full_paths = []
+        for file in files:
+            iterable = pathlib.Path().glob(f"**/{file}.py")
+            for option in iterable:
+                path = ".".join(option.parts)
+                path = path.replace(".py", "")
+                full_paths.append(path)
+
+        for file_path in full_paths:
+
+            self.load_extension(file_path)
+
+
+class CustomContext(commands.Context):
+    async def send_confirm(
+        self, *args, check: typing.Callable[..., bool] = None, **kwargs
+    ):
+        if not kwargs.get("view"):
+            view = utils.buttons.ConfirmButtonBuild(
+                timeout=utils.constants.Time.basic_timeout, ctx=self, check=check
+            )
+            message = await self.send(*args, **kwargs, view=view)
+            await view.wait()
+            if view.value is None:
+                raise utils.errors.ProcessError("Timed out!")
+
+            return view, message
+        else:
+            return super().send(*args, **kwargs)

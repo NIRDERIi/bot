@@ -1,12 +1,15 @@
 from discord.ext import commands
 from dateutil.parser import parse
-from youtubesearchpython import VideosSearch
-
+from bot import Bot, CustomContext
+from youtubesearchpython import (
+    VideosSearch,
+)  # I don't really like 3rd libs for that, and it is slow but if yuo want, sure
+from utils.converters import Limit
 import discord
 
 
 class search(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: Bot):  # Typehints.
         self.bot = bot
 
     @commands.command(
@@ -14,35 +17,41 @@ class search(commands.Cog):
         description="Sends the first 10 videos that matches the search query",
     )
     @commands.cooldown(1, 10, commands.BucketType.user)
-    async def youtube(self, ctx, *, search_query: str) -> None:
-        searchResult = VideosSearch(search_query, limit=10)
-        searchResult = searchResult.result()
-        searchResult = searchResult["result"]
+    async def youtube(
+        self, ctx: CustomContext, *, search_query: Limit(char_limit=75)
+    ) -> None:  # I made a converter for CharLimit
+        search_result = VideosSearch(
+            search_query, limit=10
+        )  # Renamed it to search_result because camelCase is not for python.
+        search_result = search_result.result()
+        search_result = search_result["result"]
 
-        if len(searchResult) <= 0:
+        if len(search_result) <= 0:
             return await ctx.send(
                 embed=discord.Embed(
-                    description="No result matches `{}`".format(search_query),
+                    description=f"No result matches `{search_query}`",
                     color=discord.Colour.red(),
                 )
-            )
+            )  # Use f-string instead of format when you can.
 
-        embedDescription = ""
+        embed_description = ""
 
-        for i in searchResult:
-            if i["type"] == "video":
-                videoTitle = i["title"][:30]
-                videoTitle += "..." if len(i["title"]) > 30 else ""
-                videoLink = i["link"]
+        for result in search_result:  # Named i to result, because it is a result data.
+            if result["type"] == "video":
+                video_title = result["title"][:30]  # Again, not camelCase
+                video_title += "..." if len(result["title"]) > 30 else ""
+                video_link = result["link"]  # camelCase
 
-                embedDescription += "➥ [{}]({})".format(videoTitle, videoLink)
-                embedDescription += (
-                    " - {}\n".format(i["duration"]) if i["duration"] else "\n"
+                embed_description += "➥ [{}]({})".format(
+                    video_title, video_link
+                )  # str.format for readability is great!
+                embed_description += (
+                    " - {}\n".format(result["duration"]) if result["duration"] else "\n"
                 )
 
         embed = discord.Embed(
             title="Search results - Youtube",
-            description=embedDescription,
+            description=embed_description,
             color=0x2F3136,
             url="https://www.youtube.com/results?search_query={}".format(
                 "+".join(search_query.split(" "))
