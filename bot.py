@@ -4,9 +4,8 @@ from utils.errors import EnvError
 
 import typing
 import aiohttp
-import warnings
-import os
 import time
+import os
 
 load_dotenv()
 

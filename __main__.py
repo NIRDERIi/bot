@@ -9,6 +9,7 @@ options = {
     "intents": intents,
     "description": "Discord bot developed in discord.py.",
     "help_command": commands.DefaultHelpCommand(),
+    "default_prefix": "!",
     "case_insensitive": True,
     "strip_after_prefix": True,
 }
@@ -16,4 +17,4 @@ options = {
 bot = Bot(**options)
 
 bot.load_extensions()
-bot.run(bot.retrieve_token, reconnect=True)
+bot.run(debug=True)
