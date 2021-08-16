@@ -50,6 +50,4 @@ class Bot(commands.Bot):
 
     @property
     def retrieve_token(self):
-        with open("config.yaml") as f:
-            config = yaml.load(f, yaml.FullLoader)
-        return config.get("token")
+        return os.getenv('token')
