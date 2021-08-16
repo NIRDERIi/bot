@@ -1,10 +1,10 @@
-import discord
 from discord.ext import commands
+from dotenv import load_dotenv
+from utils.errors import EnvError
+
 import typing
 import aiohttp
 import os
-from dotenv import load_dotenv
-from utils.errors import EnvError
 
 
 load_dotenv()
