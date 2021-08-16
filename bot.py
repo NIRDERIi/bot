@@ -4,23 +4,22 @@ from utils.errors import EnvError
 
 import typing
 import aiohttp
-import discord
+import warnings
 import os
-
+import time
 
 load_dotenv()
-
 
 class Bot(commands.Bot):
     def __init__(
         self,
-        command_prefix: str,
+        default_prefix: str,
         help_command: commands.HelpCommand,
         description: str,
         **options
     ) -> None:
         super().__init__(
-            command_prefix,
+            default_prefix,
             help_command=help_command,
             description=description,
             **options
@@ -28,20 +27,36 @@ class Bot(commands.Bot):
         self.allowed_users = [876834244167622677, 480404983372709908]
         self.session: typing.Optional[aiohttp.ClientSession] = None
 
-    async def login(self, token: str, **kwargs):
-
-        await super().login(token=token, **kwargs)
-
+    async def login(self, token: str) -> None:
+        await super().login(token)
         self.session = aiohttp.ClientSession()
 
-    async def close(self):
+    def run(self, debug=False) -> None:
+        if debug:
+            self.load_extension("jishaku")
+            
+        self.start_time = time.time()
+        super().run(self.retrieve_token, reconnect=True)
+
+    async def close(self) -> None:
         if self.session:
             await self.session.close()
         await super().close()
-    
-    async def on_ready(self):
 
+    async def on_ready(self) -> None:
         print("Logged in.")
+
+    def load_extensions(self) -> None:
+
+        files = [
+            "exts.{}".format(file.replace(".py", ""))
+            for file in os.listdir("exts/")
+            if file.endswith(".py") and "__" not in file
+        ]
+
+        for file in files:
+
+            self.load_extension(file)
 
     @property
     def retrieve_token(self) -> str:
@@ -57,15 +72,4 @@ class Bot(commands.Bot):
         dsn = os.getenv("DSN")
         if not dsn:
             raise EnvError("Fetching the DSN failed.")
-
-    def load_extensions(self):
-
-        files = [
-            "exts.{}".format(file.replace('.py', ''))
-            for file in os.listdir("exts/")
-            if file.endswith(".py") and "__" not in file
-        ]
-
-        for file in files:
-
-            self.load_extension(file)
+        return dsn

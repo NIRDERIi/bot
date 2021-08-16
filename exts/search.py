@@ -21,7 +21,7 @@ class search(commands.Cog):
             return await context.send(
                 embed=discord.Embed(
                     description="No result matches `{}`".format(search_query),
-                    color=discord.Colour.red()
+                    color=discord.Colour.red(),
                 )
             )
 
@@ -48,6 +48,7 @@ class search(commands.Cog):
         )
 
         await context.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(search(bot))
