@@ -42,3 +42,12 @@ class Bot(commands.Bot):
         dsn = os.getenv('DSN')
         if not dsn:
             raise EnvError('Fetching the DSN failed.')
+
+    @property
+    def load_extensions(self):
+
+        files = [file[:3] for file in os.listdir('exts') if file.endswith('.py') and '__' not in file]
+
+        for file in files:
+
+            self.load_extension(file)
