@@ -53,8 +53,7 @@ class Bot(commands.Bot):
         if not dsn:
             raise EnvError("Fetching the DSN failed.")
 
-    @property
-    def load_extensions(self) -> None:
+    def load_extensions(self):
 
         files = [
             file[:3]
