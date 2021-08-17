@@ -81,8 +81,8 @@ class search(commands.Cog):
             url="https://www.youtube.com/results?search_query={}".format(
                 "+".join(search_query.split(" "))
             ),
-        )  
-        
+        )
+
         await ctx.send(embed=embed)
 
     @commands.group(invoke_without_command=True, ignore_extra=False)

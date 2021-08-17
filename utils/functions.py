@@ -16,12 +16,14 @@ async def get_group_help(ctx: CustomContext, group: commands.Group):
 
         embed = discord.Embed(
             title=f"{group.qualified_name} commands.",
-            description="**__Subcommands:__**\n",
+            description="Subcommands:\n",
         )
 
         for command in command_tuple:
 
-            embed.description += f"> **{command.name} {command.signature}**\n"
+            embed.description += (
+                f"> {command.name} {command.signature.replace('_', ' ')}\n"
+            )
 
         paginator.add_embed(embed=embed)
 

@@ -17,7 +17,7 @@ options = {
     "description": "Discord bot developed in discord.py.",
     "help_command": commands.DefaultHelpCommand(),
     "case_insensitive": True,
-} 
+}
 
 bot = Bot(**options)
 
