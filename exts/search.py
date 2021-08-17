@@ -63,7 +63,7 @@ class search(commands.Cog):
 
         for result in search_result:
             if result["type"] == "video":
-                video_title = result["title"][:30]
+                video_title = result["title"][:30].replace('[', '').replace(']', '')
                 video_title += "..." if len(result["title"]) > 30 else ""
                 video_link = result["link"]
 
@@ -121,11 +121,23 @@ class search(commands.Cog):
         updated_at_time = data.get("updated_at")
         created_at = discord.utils.format_dt(parse(created_at_time), style="F")
         updated_at = discord.utils.format_dt(parse(updated_at_time), style="F")
-        description = f"**User id:** {user_id}\n**Bio:** {bio}\n**Public repos:** {repos}\n**Public gists:** {gists}\n**Followers:** {followers}\n**Following:** {following}\n**Created at:** {created_at}\n**Updated at:** {updated_at}"
         embed = discord.Embed(
             title="Github user info.",
-            description=description,
+            description=
+                f"➥ User ID: {user_id}\n"
+                f"➥ Bio: {bio}\n"
+                f"➥ followers: {followers}\n"
+                f"➥ following: {following}\n"
+,
             color=discord.Colour.blurple(),
+        )
+        embed.add_field(
+            name="Other informations:",
+            value=
+                f"> Public repos: {repos}\n"
+                f"> Public gists: {gists}\n"
+                f"> created at: {created_at}\n"
+                f"> updated at: {updated_at}\n"
         )
         embed.set_author(name=login, url=url, icon_url=avatar_url)
         embed.set_thumbnail(url=General.github_icon)
@@ -174,18 +186,28 @@ class search(commands.Cog):
             language = data.get("language")
             forks = data.get("forks_count")
             opened_issue = data.get("open_issues_count")
-            license = data.get("license") or None
-            license = license.get("name") if license else None
+            license_ = data.get("license") or None
+            license_ = license_.get("name") if license_ else None
             default_branch = data.get("default_branch")
-            add = f"\n**Updated at:** {updated_at}\n**Pushed at:** {pushed_at}\n**Language:** {language}\n**Forks:** {forks}\n**Opened_issue:** {opened_issue}"
-            description = f"**Repo id:** {repo_id}\n**Description:** {repo_description}\n**Is fork:** {is_fork}\n**Created at:** {created_at}"
-            add2 = f"\n**License:** {license}\n**Default branch:** {default_branch}"
-            description += add
-            description += add2
             embed = discord.Embed(
                 title="Repository info.",
-                description=description,
+                description=
+                    f"➥ Repository ID: {repo_id}\n"
+                    f"➥ Description: {repo_description}\n"
+                    f"➥ Is fork: {is_fork}\n"
+                    f"➥ Language: {language}\n"
+                    f"➥ Default branch: {default_branch}\n"
+                ,
                 color=discord.Colour.blurple(),
+            )
+            embed.add_field(
+                name="Other informations:",
+                value=
+                    f"> Created at: {created_at}\n"
+                    f"> Updated at: {updated_at}\n"
+                    f"> Pushed at: {pushed_at}\n"
+                    f"> Forks: {forks}\n"
+                    f"> Open ussies: {opened_issue}\n"
             )
             embed.set_author(name=full_name, url=repo_url, icon_url=owner_url)
             await ctx.send(embed=embed)
