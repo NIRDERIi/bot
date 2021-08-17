@@ -20,6 +20,8 @@ class General:
 
     support_guild_invite: str = "https://discord.gg/utdP2JRVRj"
 
+    invite_link: str = "https://discord.com/api/oauth2/authorize?client_id=876830881732509747&permissions=8&scope=bot"
+
 
 class Colours:
 
