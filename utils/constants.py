@@ -17,3 +17,10 @@ class Time:
 class General:
 
     github_icon: str = "https://avatars.githubusercontent.com/u/9919?s=200&v=4"
+
+    support_guild_invite: str = "https://discord.gg/utdP2JRVRj"
+
+
+class Colours:
+
+    invisible: int = 0x2F3136

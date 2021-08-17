@@ -21,7 +21,6 @@ class Limit(commands.Converter):
 
 
 class TimeConverter(commands.Converter):
-    
     async def convert(self, ctx: CustomContext, argument: str):
 
         if argument.isdigit() or argument.isnumeric():
@@ -30,15 +29,19 @@ class TimeConverter(commands.Converter):
         time_extensions = {
             "s": 1,
             "m": 60,
-            "h": 60*60,
-            "d": 60*60*24,
-            "w": 60*60*24*7,
+            "h": 60 * 60,
+            "d": 60 * 60 * 24,
+            "w": 60 * 60 * 24 * 7,
         }
 
         arg_extension = argument[-1].lower()
         arg_number = int(argument[:-1])
-        
+
         if arg_extension not in time_extensions:
-            raise ProcessError('Time extension should be either: s, m, h, d, w (got extension: {})'.format(arg_extension))
+            raise ProcessError(
+                "Time extension should be either: s, m, h, d, w (got extension: {})".format(
+                    arg_extension
+                )
+            )
 
         return arg_number * time_extensions[arg_extension]

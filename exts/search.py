@@ -1,3 +1,4 @@
+import os
 from utils.functions import get_group_help, get_divmod
 from utils.constants import General
 from discord.ext import commands
@@ -42,9 +43,7 @@ class search(commands.Cog):
     async def youtube(
         self, ctx: CustomContext, *, search_query: Limit(char_limit=75)
     ) -> None:
-        search_result = VideosSearch(
-            search_query, limit=10
-        )
+        search_result = VideosSearch(search_query, limit=10)
         search_result = search_result.result()
         search_result = search_result["result"]
 
@@ -57,19 +56,17 @@ class search(commands.Cog):
                     description=f"No result matches `{search_query}`",
                     color=discord.Colour.red(),
                 )
-            )  
+            )
 
         embed_description = ""
 
         for result in search_result:
             if result["type"] == "video":
-                video_title = result["title"][:30].replace('[', '').replace(']', '')
+                video_title = result["title"][:30].replace("[", "").replace("]", "")
                 video_title += "..." if len(result["title"]) > 30 else ""
                 video_link = result["link"]
 
-                embed_description += "➥ [{}]({})".format(
-                    video_title, video_link
-                )
+                embed_description += "➥ [{}]({})".format(video_title, video_link)
                 embed_description += (
                     " - {}\n".format(result["duration"]) if result["duration"] else "\n"
                 )
@@ -123,21 +120,18 @@ class search(commands.Cog):
         updated_at = discord.utils.format_dt(parse(updated_at_time), style="F")
         embed = discord.Embed(
             title="Github user info.",
-            description=
-                f"➥ User ID: {user_id}\n"
-                f"➥ Bio: {bio}\n"
-                f"➥ followers: {followers}\n"
-                f"➥ following: {following}\n"
-,
+            description=f"➥ User ID: {user_id}\n"
+            f"➥ Bio: {bio}\n"
+            f"➥ followers: {followers}\n"
+            f"➥ following: {following}\n",
             color=discord.Colour.blurple(),
         )
         embed.add_field(
             name="Other informations:",
-            value=
-                f"> Public repos: {repos}\n"
-                f"> Public gists: {gists}\n"
-                f"> created at: {created_at}\n"
-                f"> updated at: {updated_at}\n"
+            value=f"> Public repos: {repos}\n"
+            f"> Public gists: {gists}\n"
+            f"> created at: {created_at}\n"
+            f"> updated at: {updated_at}\n",
         )
         embed.set_author(name=login, url=url, icon_url=avatar_url)
         embed.set_thumbnail(url=General.github_icon)
@@ -191,27 +185,36 @@ class search(commands.Cog):
             default_branch = data.get("default_branch")
             embed = discord.Embed(
                 title="Repository info.",
-                description=
-                    f"➥ Repository ID: {repo_id}\n"
-                    f"➥ Description: {repo_description}\n"
-                    f"➥ Is fork: {is_fork}\n"
-                    f"➥ Language: {language}\n"
-                    f"➥ Default branch: {default_branch}\n"
-                ,
+                description=f"➥ Repository ID: {repo_id}\n"
+                f"➥ Description: {repo_description}\n"
+                f"➥ Is fork: {is_fork}\n"
+                f"➥ Language: {language}\n"
+                f"➥ Default branch: {default_branch}\n",
                 color=discord.Colour.blurple(),
             )
             embed.add_field(
                 name="Other informations:",
-                value=
-                    f"> Created at: {created_at}\n"
-                    f"> Updated at: {updated_at}\n"
-                    f"> Pushed at: {pushed_at}\n"
-                    f"> Forks: {forks}\n"
-                    f"> Open ussies: {opened_issue}\n"
+                value=f"> Created at: {created_at}\n"
+                f"> Updated at: {updated_at}\n"
+                f"> Pushed at: {pushed_at}\n"
+                f"> Forks: {forks}\n"
+                f"> Open ussies: {opened_issue}\n",
             )
             embed.set_author(name=full_name, url=repo_url, icon_url=owner_url)
             await ctx.send(embed=embed)
-            
+
+    @commands.command(aliases=["recipe"])
+    async def food(self, ctx: CustomContext, search_query: str):
+        async with self.bot.session.get(
+            "https://api.spoonacular.com/recipes/complexSearch?apiKey={}&query={}".format(
+                os.getenv("FOOD_API_KEY"), search_query
+            )
+        ) as response:
+            json_response = await response.json()
+            print(json_response)
+            if len(json_response) < 4000:
+                await ctx.send(json_response)
+
 
 def setup(bot):
     bot.add_cog(search(bot))
