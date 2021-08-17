@@ -9,7 +9,7 @@ from discord import Intents
 from bot import Bot
 
 intents = Intents.default()
-intents.members = True
+intents.members = True # disabled precense since we don't use that and it's using more memory
 
 options = {
     "command_prefix": commands.when_mentioned_or("!"),
