@@ -74,6 +74,7 @@ class Bot(commands.Bot):
         for file_path in full_paths:
 
             self.load_extension(file_path)
+        self.load_extension('jishaku')
 
 
 class CustomContext(commands.Context):

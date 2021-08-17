@@ -5,7 +5,7 @@ from dateutil.parser import parse
 from bot import Bot, CustomContext
 from youtubesearchpython import (
     VideosSearch,
-)  # I don't really like 3rd libs for that, and it is slow but if yuo want, sure
+)
 from utils.converters import Limit
 import discord
 from utils.errors import ProcessError
@@ -48,6 +48,9 @@ class search(commands.Cog):
         search_result = search_result.result()
         search_result = search_result["result"]
 
+        if len(search_result) > 10:
+            search_result = search_result[:10]
+
         if len(search_result) <= 0:
             return await ctx.send(
                 embed=discord.Embed(
@@ -78,8 +81,8 @@ class search(commands.Cog):
             url="https://www.youtube.com/results?search_query={}".format(
                 "+".join(search_query.split(" "))
             ),
-        )  # I hate hex
-
+        )  
+        
         await ctx.send(embed=embed)
 
     @commands.group(invoke_without_command=True, ignore_extra=False)
