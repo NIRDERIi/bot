@@ -1,3 +1,5 @@
+from utils.functions import get_group_help, get_divmod
+from utils.constants import General
 from discord.ext import commands
 from dateutil.parser import parse
 from bot import Bot, CustomContext
@@ -6,11 +8,30 @@ from youtubesearchpython import (
 )  # I don't really like 3rd libs for that, and it is slow but if yuo want, sure
 from utils.converters import Limit
 import discord
+from utils.errors import ProcessError
 
+
+statuses = {
+    400: 'Response status code indicates that the server cannot or will not process the request',
+    401: 'The request has not been applied because it lacks valid authentication credentials for the target resource. This is from our side, feel free to report!',
+    403: 'The request is forbidden from this action from our side. Feel free to report so we can fix it!',
+    404: 'Couldn\'t find any match from these credentials.',
+    429: 'We are being rate limited.',
+    500: 'The server encountered an unexpected condition that prevented it from fulfilling the request.'
+}
 
 class search(commands.Cog):
-    def __init__(self, bot: Bot):  # Typehints.
-        self.bot = bot
+    def __init__(self, bot: Bot) -> None:  # Typehints.
+        self.bot: Bot = bot
+        self.statuses = statuses
+        self.bad_status = "Couldn't fetch data, returned status: {status}"
+        self.not_found = "Couldn't find any mathces to: {query}"
+        self.stackoverflow_url = "https://api.stackexchange.com/2.2/search/advanced"
+        self.realpython_url = "https://realpython.com/search/api/v1/?"
+        self.realpython_basic_url = "https://realpython.com{url}"
+        self.github_api = "https://api.github.com"
+        self.lyrics_api = "https://some-random-api.ml/lyrics?title={title}"
+        self.pypi_api = 'https://pypi.org/pypi/{package}/json'
 
     @commands.command(
         aliases=["yt"],
@@ -41,7 +62,7 @@ class search(commands.Cog):
                 video_title = result["title"][:30]  # Again, not camelCase
                 video_title += "..." if len(result["title"]) > 30 else ""
                 video_link = result["link"]  # camelCase
-
+ 
                 embed_description += "➥ [{}]({})".format(
                     video_title, video_link
                 )  # str.format for readability is great!
@@ -56,105 +77,106 @@ class search(commands.Cog):
             url="https://www.youtube.com/results?search_query={}".format(
                 "+".join(search_query.split(" "))
             ),
-        )
+        ) #I hate hex
 
         await ctx.send(embed=embed)
 
-    @commands.group(aliases=["git"], invoke_without_command=True, ignore_extra=False)
-    async def github(self, ctx) -> None:
-        embed = discord.Embed(
-            title="Github commands",
-            description="➥ Subcommands:\n" "- user\n" "- repository\n",
-            color=0x2F3136,
-        )
-        embed.set_thumbnail(
-            url="https://images-ext-1.discordapp.net/external/Wv3a3cxRzc7jnIgHtU7_yZpnRWPU4_r4BlfNaaYQ6Tc/%3Fs%3D200%26v%3D4/https/avatars.githubusercontent.com/u/9919?width=80&height=80"
-        )
-        embed.set_footer(text="run !github <subcommand>")
+    @commands.group(invoke_without_command=True, ignore_extra=False)
+    async def github(self, ctx: CustomContext) -> None:
+        await get_group_help(ctx=ctx, group=ctx.command)
 
-        await ctx.send(embed=embed)
 
-    @github.command(aliases=["find"], description="Get a github user info.")
-    async def user(self, ctx, *, user_name: str) -> None:
+    @github.command(name="user", description="Shows info about github user.")
+    async def github_user(self, ctx: CustomContext, *, name: Limit(char_limit=50)):
         async with self.bot.session.get(
-            f"https://api.github.com/users/{user_name}"
-        ) as res_:
-            res = await res_.json()
+            url=f"{self.github_api}/users/{name}"
+        ) as response:
+            data = await response.json(content_type=None)
+            if response.status != 200:
+                message = self.statuses.get(response.status) or self.bad_status.format(status=response.status)
+                if data.get('retry_after'):
+                    days, hours, minutes, seconds = get_divmod(int(message.get('retry_after')))
+                    message += f'Retry after: {days}d, {hours}h, {minutes}m and {seconds}s.'
 
-            if res_.status == 404:
-                return await ctx.send(
-                    embed=discord.Embed(
-                        description="User not found: `{}`".format(user_name),
-                        color=discord.Colour.red(),
-                    )
-                )
-
+                raise ProcessError(message)
+        login = data.get("login")
+        user_id = data.get("id")
+        avatar_url = data.get("avatar_url")
+        url = data.get("html_url")
+        bio = data.get("bio") or "None."
+        repos = data.get("public_repos")
+        gists = data.get("public_gists")
+        followers = data.get("followers")
+        following = data.get("following")
+        created_at_time = data.get("created_at")
+        updated_at_time = data.get("updated_at")
+        created_at = discord.utils.format_dt(parse(created_at_time), style="F")
+        updated_at = discord.utils.format_dt(parse(updated_at_time), style="F")
+        description = f"**User id:** {user_id}\n**Bio:** {bio}\n**Public repos:** {repos}\n**Public gists:** {gists}\n**Followers:** {followers}\n**Following:** {following}\n**Created at:** {created_at}\n**Updated at:** {updated_at}"
         embed = discord.Embed(
-            title=res["login"],
-            url="https://github.com/{}/".format(user_name),
-            description=f"❯ github id: {res['id']}\n"
-            f"❯ public repos: {res['public_repos']}\n"
-            f"❯ public gists: {res['public_gists']}\n",
-            color=0x2F3136,
+            title="Github user info.",
+            description=description,
+            color=discord.Colour.blurple(),
         )
-        embed.set_thumbnail(url=res["avatar_url"])
-        embed.add_field(
-            name="Other informations:",
-            value=f"- followers: {res['followers']}\n"
-            f"- following: {res['following']}\n"
-            f"- created at: {parse(res['created_at']).strftime('%d/%m/%y %H:%M')}\n"
-            f"- updated at: {parse(res['updated_at']).strftime('%d/%m/%y %H:%M')}\n"
-            f"- bio: {res['bio']}",
-        )
+        embed.set_author(name=login, url=url, icon_url=avatar_url)
+        embed.set_thumbnail(url=General.github_icon)
         await ctx.send(embed=embed)
+
 
     @github.command(
-        aliases=["repo"], description="Search github for a specific repository."
+        name="repo",
+        description="Shows info about a specific repo.",
+        aliases=["repository"],
     )
-    async def repository(self, ctx, repo_name: str):
-        if len(repo_name.split("/")) != 2:
-            return await ctx.send(
-                embed=discord.Embed(
-                    description="that's not a valid repository, please follow this format: `username/repository`",
-                    color=discord.Colour.red(),
-                )
+    async def github_repo(
+        self, ctx: CustomContext, *, query: Limit(char_limit=100)
+    ):
+        if query.count("/") != 1:
+            raise ProcessError(
+                f"Invalid input. Please make sure this is the format you use: USERNAME/REPONAME"
             )
-
         async with self.bot.session.get(
-            f"https://api.github.com/repos/{repo_name.split('/')[0]}/{repo_name.split('/')[1]}"
-        ) as res_:
-            res = await res_.json()
-            if res_.status == 404:
-                return await ctx.send(
-                    embed=discord.Embed(
-                        description="Repository not found: `{}`".format(repo_name),
-                        color=0x2F3136,
-                    )
-                )
+            url=f"{self.github_api}/repos/{query}"
+        ) as response:
+            data = await response.json(content_type=None)
+            if response.status != 200:
+                message = self.statuses.get(response.status) or self.bad_status.format(status=response.status)
+                if data.get('retry_after'):
+                    days, hours, minutes, seconds = get_divmod(int(message.get('retry_after')))
+                    message += f'Retry after: {days}d, {hours}h, {minutes}m and {seconds}s.'
 
-        license_ = res.get("license")
-        if license_:
-            license_ = license_.get("key")
-
-        embed = discord.Embed(
-            title=res.get("full_name"),
-            url=res.get("html_url"),
-            description=f"❯ github id: {res.get('id')}\n"
-            f"❯ description: {res.get('description')}\n"
-            f"❯ homepage: {res.get('homepage')}\n"
-            f"❯ license: {license_}\n",
-            color=0x2F3136,
-        )
-        embed.set_thumbnail(url=res.get("owner").get("avatar_url"))
-        embed.add_field(
-            name="Other informations:",
-            value=f"- created at: {parse(res['created_at']).strftime('%d/%m/%y %H:%M')}\n"
-            f"- updated at: {parse(res['updated_at']).strftime('%d/%m/%y %H:%M')}\n"
-            f"- pushed at: {parse(res['pushed_at']).strftime('%d/%m/%y %H:%M')}\n"
-            f"- language: {res['language']}\n",
-        )
-
-        await ctx.send(embed=embed)
+                raise ProcessError(message)
+            repo_id = data.get("id")
+            full_name = data.get("full_name")
+            owner_url = data.get("owner").get("avatar_url")
+            repo_url = data.get("html_url")
+            repo_description = data.get("description")
+            is_fork = data.get("fork")
+            created_at = discord.utils.format_dt(
+                parse(data.get("created_at")), style="F"
+            )
+            updated_at = discord.utils.format_dt(
+                parse(data.get("updated_at")), style="F"
+            )
+            pushed_at = discord.utils.format_dt(parse(data.get("pushed_at")), style="F")
+            language = data.get("language")
+            forks = data.get("forks_count")
+            opened_issue = data.get("open_issues_count")
+            license = data.get("license") or None
+            license = license.get("name") if license else None
+            default_branch = data.get("default_branch")
+            add = f"\n**Updated at:** {updated_at}\n**Pushed at:** {pushed_at}\n**Language:** {language}\n**Forks:** {forks}\n**Opened_issue:** {opened_issue}"
+            description = f"**Repo id:** {repo_id}\n**Description:** {repo_description}\n**Is fork:** {is_fork}\n**Created at:** {created_at}"
+            add2 = f"\n**License:** {license}\n**Default branch:** {default_branch}"
+            description += add
+            description += add2
+            embed = discord.Embed(
+                title="Repository info.",
+                description=description,
+                color=discord.Colour.blurple(),
+            )
+            embed.set_author(name=full_name, url=repo_url, icon_url=owner_url)
+            await ctx.send(embed=embed)
 
 
 def setup(bot):

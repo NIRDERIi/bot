@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import utils
@@ -27,13 +28,13 @@ class Bot(commands.Bot):
         self.allowed_users = [876834244167622677, 480404983372709908]
         self.session: typing.Optional[aiohttp.ClientSession] = None
 
-    async def login(self, token: str, **kwargs):
+    async def login(self, token: str, **kwargs) -> None:
 
         await super().login(token=token, **kwargs)
 
         self.session = aiohttp.ClientSession()
 
-    async def close(self):
+    async def close(self) -> None:
         if self.session:
             await self.session.close()
         await super().close()
@@ -53,7 +54,7 @@ class Bot(commands.Bot):
         if not dsn:
             raise utils.errors.EnvError("Fetching the DSN failed.")
 
-    def load_extensions(self):
+    def load_extensions(self) -> None:
 
         files = [
             file[:-3]
@@ -78,7 +79,7 @@ class Bot(commands.Bot):
 class CustomContext(commands.Context):
     async def send_confirm(
         self, *args, check: typing.Callable[..., bool] = None, **kwargs
-    ):
+    ) -> typing.Tuple[discord.Message, typing.Optional[discord.ui.View]]:
         if not kwargs.get("view"):
             view = utils.buttons.ConfirmButtonBuild(
                 timeout=utils.constants.Time.basic_timeout, ctx=self, check=check

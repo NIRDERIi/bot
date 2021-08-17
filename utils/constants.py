@@ -12,3 +12,8 @@ class Emojis:
 class Time:
 
     basic_timeout: int = 20.0
+
+
+class General:
+
+    github_icon: str = "https://avatars.githubusercontent.com/u/9919?s=200&v=4"
