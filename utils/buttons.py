@@ -142,6 +142,8 @@ class ConfirmButtonBuild(discord.ui.View):
         style=discord.ButtonStyle.blurple,
         emoji=Emojis.custom_denial,
     )
-    async def cancel(self, button: discord.ui.Button, interaction: discord.Interaction) -> None:
+    async def cancel(
+        self, button: discord.ui.Button, interaction: discord.Interaction
+    ) -> None:
         self.value = False
         self.stop()

@@ -12,13 +12,14 @@ from utils.errors import ProcessError
 
 
 statuses = {
-    400: 'Response status code indicates that the server cannot or will not process the request',
-    401: 'The request has not been applied because it lacks valid authentication credentials for the target resource. This is from our side, feel free to report!',
-    403: 'The request is forbidden from this action from our side. Feel free to report so we can fix it!',
-    404: 'Couldn\'t find any match from these credentials.',
-    429: 'We are being rate limited.',
-    500: 'The server encountered an unexpected condition that prevented it from fulfilling the request.'
+    400: "Response status code indicates that the server cannot or will not process the request",
+    401: "The request has not been applied because it lacks valid authentication credentials for the target resource. This is from our side, feel free to report!",
+    403: "The request is forbidden from this action from our side. Feel free to report so we can fix it!",
+    404: "Couldn't find any match from these credentials.",
+    429: "We are being rate limited.",
+    500: "The server encountered an unexpected condition that prevented it from fulfilling the request.",
 }
+
 
 class search(commands.Cog):
     def __init__(self, bot: Bot) -> None:  # Typehints.
@@ -31,7 +32,7 @@ class search(commands.Cog):
         self.realpython_basic_url = "https://realpython.com{url}"
         self.github_api = "https://api.github.com"
         self.lyrics_api = "https://some-random-api.ml/lyrics?title={title}"
-        self.pypi_api = 'https://pypi.org/pypi/{package}/json'
+        self.pypi_api = "https://pypi.org/pypi/{package}/json"
 
     @commands.command(
         aliases=["yt"],
@@ -62,7 +63,7 @@ class search(commands.Cog):
                 video_title = result["title"][:30]  # Again, not camelCase
                 video_title += "..." if len(result["title"]) > 30 else ""
                 video_link = result["link"]  # camelCase
- 
+
                 embed_description += "➥ [{}]({})".format(
                     video_title, video_link
                 )  # str.format for readability is great!
@@ -77,14 +78,13 @@ class search(commands.Cog):
             url="https://www.youtube.com/results?search_query={}".format(
                 "+".join(search_query.split(" "))
             ),
-        ) #I hate hex
+        )  # I hate hex
 
         await ctx.send(embed=embed)
 
     @commands.group(invoke_without_command=True, ignore_extra=False)
     async def github(self, ctx: CustomContext) -> None:
         await get_group_help(ctx=ctx, group=ctx.command)
-
 
     @github.command(name="user", description="Shows info about github user.")
     async def github_user(self, ctx: CustomContext, *, name: Limit(char_limit=50)):
@@ -93,10 +93,16 @@ class search(commands.Cog):
         ) as response:
             data = await response.json(content_type=None)
             if response.status != 200:
-                message = self.statuses.get(response.status) or self.bad_status.format(status=response.status)
-                if data.get('retry_after'):
-                    days, hours, minutes, seconds = get_divmod(int(message.get('retry_after')))
-                    message += f'Retry after: {days}d, {hours}h, {minutes}m and {seconds}s.'
+                message = self.statuses.get(response.status) or self.bad_status.format(
+                    status=response.status
+                )
+                if data.get("retry_after"):
+                    days, hours, minutes, seconds = get_divmod(
+                        int(message.get("retry_after"))
+                    )
+                    message += (
+                        f"Retry after: {days}d, {hours}h, {minutes}m and {seconds}s."
+                    )
 
                 raise ProcessError(message)
         login = data.get("login")
@@ -122,15 +128,12 @@ class search(commands.Cog):
         embed.set_thumbnail(url=General.github_icon)
         await ctx.send(embed=embed)
 
-
     @github.command(
         name="repo",
         description="Shows info about a specific repo.",
         aliases=["repository"],
     )
-    async def github_repo(
-        self, ctx: CustomContext, *, query: Limit(char_limit=100)
-    ):
+    async def github_repo(self, ctx: CustomContext, *, query: Limit(char_limit=100)):
         if query.count("/") != 1:
             raise ProcessError(
                 f"Invalid input. Please make sure this is the format you use: USERNAME/REPONAME"
@@ -140,10 +143,16 @@ class search(commands.Cog):
         ) as response:
             data = await response.json(content_type=None)
             if response.status != 200:
-                message = self.statuses.get(response.status) or self.bad_status.format(status=response.status)
-                if data.get('retry_after'):
-                    days, hours, minutes, seconds = get_divmod(int(message.get('retry_after')))
-                    message += f'Retry after: {days}d, {hours}h, {minutes}m and {seconds}s.'
+                message = self.statuses.get(response.status) or self.bad_status.format(
+                    status=response.status
+                )
+                if data.get("retry_after"):
+                    days, hours, minutes, seconds = get_divmod(
+                        int(message.get("retry_after"))
+                    )
+                    message += (
+                        f"Retry after: {days}d, {hours}h, {minutes}m and {seconds}s."
+                    )
 
                 raise ProcessError(message)
             repo_id = data.get("id")

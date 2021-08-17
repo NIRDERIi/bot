@@ -6,7 +6,6 @@ import more_itertools
 
 
 async def get_group_help(ctx: CustomContext, group: commands.Group):
-
     async def check(interaction: discord.Interaction):
         return interaction.user.id == ctx.author.id
 
@@ -15,11 +14,14 @@ async def get_group_help(ctx: CustomContext, group: commands.Group):
     commands_lst__tuples = [command_tuple for command_tuple in iterable]
     for command_tuple in commands_lst__tuples:
 
-        embed = discord.Embed(title=f'{group.qualified_name} commands.', description='**__Subcommands:__**\n')
+        embed = discord.Embed(
+            title=f"{group.qualified_name} commands.",
+            description="**__Subcommands:__**\n",
+        )
 
         for command in command_tuple:
 
-            embed.description += f'> **{command.name} {command.signature}**\n'
+            embed.description += f"> **{command.name} {command.signature}**\n"
 
         paginator.add_embed(embed=embed)
 
