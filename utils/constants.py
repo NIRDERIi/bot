@@ -22,6 +22,7 @@ class General:
 
     invite_link: str = "https://discord.com/api/oauth2/authorize?client_id=876830881732509747&permissions=8&scope=bot"
 
+    basic_repo: str = 'https://github.com/NIRDERIi/bot'
 
 class Colours:
 
