@@ -22,8 +22,8 @@ statuses = {
 
 
 class search(commands.Cog):
-    def __init__(self, bot: Bot) -> None:  # Typehints.
-        self.bot: Bot = bot
+    def __init__(self, bot: Bot) -> None:
+        self.bot = bot
         self.statuses = statuses
         self.bad_status = "Couldn't fetch data, returned status: {status}"
         self.not_found = "Couldn't find any mathces to: {query}"
@@ -41,10 +41,10 @@ class search(commands.Cog):
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def youtube(
         self, ctx: CustomContext, *, search_query: Limit(char_limit=75)
-    ) -> None:  # I made a converter for CharLimit
+    ) -> None:
         search_result = VideosSearch(
             search_query, limit=10
-        )  # Renamed it to search_result because camelCase is not for python.
+        )
         search_result = search_result.result()
         search_result = search_result["result"]
 
@@ -57,19 +57,19 @@ class search(commands.Cog):
                     description=f"No result matches `{search_query}`",
                     color=discord.Colour.red(),
                 )
-            )  # Use f-string instead of format when you can.
+            )  
 
         embed_description = ""
 
-        for result in search_result:  # Named i to result, because it is a result data.
+        for result in search_result:
             if result["type"] == "video":
-                video_title = result["title"][:30]  # Again, not camelCase
+                video_title = result["title"][:30]
                 video_title += "..." if len(result["title"]) > 30 else ""
-                video_link = result["link"]  # camelCase
+                video_link = result["link"]
 
                 embed_description += "➥ [{}]({})".format(
                     video_title, video_link
-                )  # str.format for readability is great!
+                )
                 embed_description += (
                     " - {}\n".format(result["duration"]) if result["duration"] else "\n"
                 )
@@ -189,7 +189,7 @@ class search(commands.Cog):
             )
             embed.set_author(name=full_name, url=repo_url, icon_url=owner_url)
             await ctx.send(embed=embed)
-
+            
 
 def setup(bot):
     bot.add_cog(search(bot))
