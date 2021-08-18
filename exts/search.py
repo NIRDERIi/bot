@@ -1,6 +1,6 @@
 import discord
 from utils.functions import get_group_help, get_divmod
-from utils.constants import General
+from utils.constants import Colours, General
 from utils.converters import Limit
 from utils.errors import ProcessError
 from discord.ext import commands
@@ -21,7 +21,7 @@ statuses = {
 }
 
 
-class search(commands.Cog):
+class Search(commands.Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
         self.statuses = statuses
@@ -73,10 +73,10 @@ class search(commands.Cog):
         embed = discord.Embed(
             title="Search results - Youtube",
             description=embed_description,
-            color=0x2F3136,
+            color=Colours.invisible,
             url="https://www.youtube.com/results?search_query={}".format(
                 "+".join(search_query.split(" "))
-            ),
+            )
         )
 
         await ctx.send(embed=embed)
@@ -150,7 +150,6 @@ class search(commands.Cog):
             url=f"{self.github_api}/repos/{query}"
         ) as response:
             data = await response.json(content_type=None)
-            print(data)
             if response.status != 200:
                 message = self.statuses.get(response.status) or self.bad_status.format(
                     status=response.status
@@ -177,8 +176,8 @@ class search(commands.Cog):
             pushed_at = discord.utils.format_dt(
                 parse(data.get("pushed_at")), style="f"
             )
-            license_ = data.get("license")
-            license_ = license_.get("name") if license_ else None
+            license = data.get("license")
+            license = license.get("name") if license else None
             embed = discord.Embed(
                 title=data.get('full_name'),
                 description=
@@ -198,8 +197,8 @@ class search(commands.Cog):
                 f"> Forks: {data.get('forks')}\n",
             )
             embed.add_field(
-                name="_ _",
-                value=
+                name = "_ _",
+                value =
                     f"> Created at: {created_at}\n"
                     f"> Updated at: {updated_at}\n"
                     f"> Pushed at: {pushed_at}\n"
@@ -210,5 +209,5 @@ class search(commands.Cog):
             await ctx.send(embed=embed)
 
 
-def setup(bot):
-    bot.add_cog(search(bot))
+def setup(bot: Bot):
+    bot.add_cog(Search(bot))
