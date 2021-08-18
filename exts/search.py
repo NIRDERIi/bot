@@ -115,8 +115,8 @@ class search(commands.Cog):
         following = data.get("following")
         created_at_time = data.get("created_at")
         updated_at_time = data.get("updated_at")
-        created_at = discord.utils.format_dt(parse(created_at_time), style="F")
-        updated_at = discord.utils.format_dt(parse(updated_at_time), style="F")
+        created_at = discord.utils.format_dt(parse(created_at_time), style="f")
+        updated_at = discord.utils.format_dt(parse(updated_at_time), style="f")
         embed = discord.Embed(
             title="Github user info.",
             description=f"➥ User ID: {user_id}\n"
