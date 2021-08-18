@@ -1,13 +1,14 @@
-import discord
+from utils.errors import EnvError, ProcessError
 from discord.ext import commands
 from dotenv import load_dotenv
 import utils
 import typing
 import aiohttp
-import os
 import pathlib
 import datetime
 import asyncpg
+import discord
+import os
 
 
 load_dotenv()
@@ -30,6 +31,7 @@ class Bot(commands.Bot):
         self.pool = self.loop.run_until_complete(
             asyncpg.create_pool(dsn=self.retrieve_dsn, min_size=1, max_size=5)
         )
+        self.pool.acquire
         self.allowed_users = [
             876834244167622677,
             480404983372709908,
@@ -54,7 +56,7 @@ class Bot(commands.Bot):
 
         token = os.getenv("TOKEN")
         if not token:
-            raise utils.errors.EnvError("Fetching the TOKEN failed.")
+            raise EnvError("Fetching the TOKEN failed.")
         return token
 
     @property
@@ -62,7 +64,7 @@ class Bot(commands.Bot):
 
         dsn = os.getenv("DSN")
         if not dsn:
-            raise utils.errors.EnvError("Fetching the DSN failed.")
+            raise EnvError("Fetching the DSN failed.")
 
     def load_extensions(self) -> None:
 
@@ -98,7 +100,7 @@ class CustomContext(commands.Context):
             message = await self.send(*args, **kwargs, view=view)
             await view.wait()
             if view.value is None:
-                raise utils.errors.ProcessError("Timed out!")
+                raise ProcessError("Timed out!")
 
             return view, message
         else:
