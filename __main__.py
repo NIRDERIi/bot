@@ -14,7 +14,7 @@ intents.members = (
 )
 
 options = {
-    "command_prefix": commands.when_mentioned_or("!"),
+    "command_prefix": commands.when_mentioned_or("."),
     "intents": intents,
     "description": "Discord bot developed in discord.py.",
     "help_command": commands.DefaultHelpCommand(),

@@ -1,15 +1,14 @@
-import os
+import discord
 from utils.functions import get_group_help, get_divmod
 from utils.constants import General
+from utils.converters import Limit
+from utils.errors import ProcessError
 from discord.ext import commands
 from dateutil.parser import parse
 from bot import Bot, CustomContext
 from youtubesearchpython import (
     VideosSearch,
 )
-from utils.converters import Limit
-import discord
-from utils.errors import ProcessError
 
 
 statuses = {
@@ -187,7 +186,7 @@ class search(commands.Cog):
                 title="Repository info.",
                 description=f"➥ Repository ID: {repo_id}\n"
                 f"➥ Description: {repo_description}\n"
-                f"➥ Is fork: {is_fork}\n"
+                f"➥ license: {license_}\n"
                 f"➥ Language: {language}\n"
                 f"➥ Default branch: {default_branch}\n",
                 color=discord.Colour.blurple(),
@@ -197,23 +196,12 @@ class search(commands.Cog):
                 value=f"> Created at: {created_at}\n"
                 f"> Updated at: {updated_at}\n"
                 f"> Pushed at: {pushed_at}\n"
+                f"> Is fork: {is_fork}\n"
                 f"> Forks: {forks}\n"
                 f"> Open ussies: {opened_issue}\n",
             )
             embed.set_author(name=full_name, url=repo_url, icon_url=owner_url)
             await ctx.send(embed=embed)
-
-    @commands.command(aliases=["recipe"])
-    async def food(self, ctx: CustomContext, search_query: str):
-        async with self.bot.session.get(
-            "https://api.spoonacular.com/recipes/complexSearch?apiKey={}&query={}".format(
-                os.getenv("FOOD_API_KEY"), search_query
-            )
-        ) as response:
-            json_response = await response.json()
-            print(json_response)
-            if len(json_response) < 4000:
-                await ctx.send(json_response)
 
 
 def setup(bot):
