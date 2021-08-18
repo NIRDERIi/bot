@@ -83,7 +83,10 @@ class SourceConverter(commands.Converter):
             full_link = f'{General.basic_repo}/blob/master/{short_path}'
             results[f'Cog: {cog.qualified_name}'] = {'description': cog.__doc__, 'repo_link': full_link}
         
-        iterable = pathlib.Path().glob(f'**/{argument.lower()}')
+        glob_check = f'**/{argument.lower()}'
+        if not argument.endswith('.py'):
+            glob_check += f'.py'
+        iterable = pathlib.Path().glob(glob_check)
         pathlib_paths_list = [i for i in iterable]
         if pathlib_paths_list:
             short_path = '/'.join(pathlib_paths_list[0].parts)
