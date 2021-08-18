@@ -76,7 +76,7 @@ class Search(commands.Cog):
             color=Colours.invisible,
             url="https://www.youtube.com/results?search_query={}".format(
                 "+".join(search_query.split(" "))
-            )
+            ),
         )
 
         await ctx.send(embed=embed)
@@ -164,8 +164,8 @@ class Search(commands.Cog):
 
                 raise ProcessError(message)
 
-            repo_description = data.get('description')[:50]
-            repo_description += "..." if len(data.get('description')) > 50 else ""
+            repo_description = data.get("description")[:50]
+            repo_description += "..." if len(data.get("description")) > 50 else ""
 
             created_at = discord.utils.format_dt(
                 parse(data.get("created_at")), style="f"
@@ -173,39 +173,38 @@ class Search(commands.Cog):
             updated_at = discord.utils.format_dt(
                 parse(data.get("updated_at")), style="f"
             )
-            pushed_at = discord.utils.format_dt(
-                parse(data.get("pushed_at")), style="f"
-            )
+            pushed_at = discord.utils.format_dt(parse(data.get("pushed_at")), style="f")
             license = data.get("license")
             license = license.get("name") if license else None
             embed = discord.Embed(
-                title=data.get('full_name'),
-                description=
-                f"➥ Repository ID: {data.get('id')}\n"
+                title=data.get("full_name"),
+                description=f"➥ Repository ID: {data.get('id')}\n"
                 f"➥ Description: {repo_description}\n"
                 f"➥ Homepage: {data.get('homepage') if not data.get('homepage') == '' else None}\n"
                 f"➥ Language: {data.get('language')}\n",
-                url=data.get('html_url'),
+                url=data.get("html_url"),
                 color=discord.Colour.blurple(),
             )
             embed.add_field(
                 name="Other informations:",
-                value=
-                f"> Open issues: {data.get('open_issues')}\n"
+                value=f"> Open issues: {data.get('open_issues')}\n"
                 f"> Watched by: {data.get('watchers')} users\n"
                 f"> Is fork: {data.get('fork')}\n"
                 f"> Forks: {data.get('forks')}\n",
             )
             embed.add_field(
-                name = "_ _",
-                value =
-                    f"> Created at: {created_at}\n"
-                    f"> Updated at: {updated_at}\n"
-                    f"> Pushed at: {pushed_at}\n"
-                    f"> Default branch: {data.get('default_branch')}\n"
+                name="_ _",
+                value=f"> Created at: {created_at}\n"
+                f"> Updated at: {updated_at}\n"
+                f"> Pushed at: {pushed_at}\n"
+                f"> Default branch: {data.get('default_branch')}\n",
             )
-            embed.set_author(name=data['owner']['login'], url=data['owner']['html_url'], icon_url=data['owner']['avatar_url'])
-            embed.set_footer(text=data['license']['name'])
+            embed.set_author(
+                name=data["owner"]["login"],
+                url=data["owner"]["html_url"],
+                icon_url=data["owner"]["avatar_url"],
+            )
+            embed.set_footer(text=data["license"]["name"])
             await ctx.send(embed=embed)
 
 

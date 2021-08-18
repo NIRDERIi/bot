@@ -26,13 +26,12 @@ class Info(commands.Cog):
 
         # Getting WebSocket latency and database's
         latency = round(self.bot.latency * 1000)
-        """
-        db_start_time = time.time()
-        async with self.bot.pool.acquire(timeout=10.0) as conn:
-            await conn.fetch('''SELECT * FROM guilds_config''')
-        db_end_time = time.time()
-        db_ms = round((db_end_time - db_start_time) * 1000)
-        """
+
+        # db_start_time = time.time()
+        # async with self.bot.pool.acquire(timeout=10.0) as conn:
+        #     await conn.fetch('''SELECT * FROM guilds_config''')
+        # db_end_time = time.time()
+        # db_ms = round((db_end_time - db_start_time) * 1000)
 
         # Defining guilds/users count
         guilds_count = len(self.bot.guilds)

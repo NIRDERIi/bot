@@ -6,7 +6,7 @@ import more_itertools
 
 
 async def get_group_help(ctx: CustomContext, group: commands.Group):
-    async def check(interaction: discord.Interaction):
+    async def check(interaction: discord.Interaction) -> None:
         return interaction.user.id == ctx.author.id
 
     paginator = Paginator(ctx, embeds=[], timeout=20.0, check=check)
