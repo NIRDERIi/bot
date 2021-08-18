@@ -1,4 +1,3 @@
-from utils.errors import EnvError, ProcessError
 from discord.ext import commands
 from dotenv import load_dotenv
 import utils
@@ -56,7 +55,7 @@ class Bot(commands.Bot):
 
         token = os.getenv("TOKEN")
         if not token:
-            raise EnvError("Fetching the TOKEN failed.")
+            raise utils.errors.EnvError("Fetching the TOKEN failed.")
         return token
 
     @property
@@ -64,7 +63,8 @@ class Bot(commands.Bot):
 
         dsn = os.getenv("DSN")
         if not dsn:
-            raise EnvError("Fetching the DSN failed.")
+            raise utils.errors.EnvError("Fetching the DSN failed.")
+        return dsn
 
     def load_extensions(self) -> None:
 
@@ -100,7 +100,7 @@ class CustomContext(commands.Context):
             message = await self.send(*args, **kwargs, view=view)
             await view.wait()
             if view.value is None:
-                raise ProcessError("Timed out!")
+                raise utils.errors.ProcessError("Timed out!")
 
             return view, message
         else:
