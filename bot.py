@@ -63,6 +63,7 @@ class Bot(commands.Bot):
         dsn = os.getenv("DSN")
         if not dsn:
             raise utils.errors.EnvError("Fetching the DSN failed.")
+        return dsn
 
     def load_extensions(self) -> None:
 
