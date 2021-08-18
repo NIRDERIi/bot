@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-from AnilistPython import Anilist
 import utils
 import typing
 import aiohttp
@@ -31,7 +30,6 @@ class Bot(commands.Bot):
         # self.pool = self.loop.run_until_complete(asyncpg.create_pool(dsn=self.retrieve_dsn, min_size=1, max_size=5))
         self.allowed_users = [876834244167622677, 480404983372709908]
         self.session: typing.Optional[aiohttp.ClientSession] = None
-        self.anilist = Anilist()
         self.uptime = datetime.datetime.utcnow()
 
     async def login(self, token: str, **kwargs) -> None:
