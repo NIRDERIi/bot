@@ -81,7 +81,7 @@ class search(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.group(invoke_without_command=True, ignore_extra=False)
+    @commands.group(invoke_without_command=True, ignore_extra=False, aliases=["git"])
     async def github(self, ctx: CustomContext) -> None:
         await get_group_help(ctx=ctx, group=ctx.command)
 
@@ -150,6 +150,7 @@ class search(commands.Cog):
             url=f"{self.github_api}/repos/{query}"
         ) as response:
             data = await response.json(content_type=None)
+            print(data)
             if response.status != 200:
                 message = self.statuses.get(response.status) or self.bad_status.format(
                     status=response.status
@@ -163,44 +164,49 @@ class search(commands.Cog):
                     )
 
                 raise ProcessError(message)
-            repo_id = data.get("id")
-            full_name = data.get("full_name")
-            owner_url = data.get("owner").get("avatar_url")
-            repo_url = data.get("html_url")
-            repo_description = data.get("description")
-            is_fork = data.get("fork")
+
+            repo_description = data.get('description')[:50]
+            repo_description += "..." if len(data.get('description')) > 50 else ""
+
             created_at = discord.utils.format_dt(
-                parse(data.get("created_at")), style="F"
+                parse(data.get("created_at")), style="f"
             )
             updated_at = discord.utils.format_dt(
-                parse(data.get("updated_at")), style="F"
+                parse(data.get("updated_at")), style="f"
             )
-            pushed_at = discord.utils.format_dt(parse(data.get("pushed_at")), style="F")
-            language = data.get("language")
-            forks = data.get("forks_count")
-            opened_issue = data.get("open_issues_count")
-            license_ = data.get("license") or None
+            pushed_at = discord.utils.format_dt(
+                parse(data.get("pushed_at")), style="f"
+            )
+            license_ = data.get("license")
             license_ = license_.get("name") if license_ else None
-            default_branch = data.get("default_branch")
             embed = discord.Embed(
-                title="Repository info.",
-                description=f"➥ Repository ID: {repo_id}\n"
+                title=data.get('full_name'),
+                description=
+                f"➥ Repository ID: {data.get('id')}\n"
                 f"➥ Description: {repo_description}\n"
-                f"➥ license: {license_}\n"
-                f"➥ Language: {language}\n"
-                f"➥ Default branch: {default_branch}\n",
+                f"➥ Homepage: {data.get('homepage') if not data.get('homepage') == '' else None}\n"
+                f"➥ Language: {data.get('language')}\n",
+                url=data.get('html_url'),
                 color=discord.Colour.blurple(),
             )
             embed.add_field(
                 name="Other informations:",
-                value=f"> Created at: {created_at}\n"
-                f"> Updated at: {updated_at}\n"
-                f"> Pushed at: {pushed_at}\n"
-                f"> Is fork: {is_fork}\n"
-                f"> Forks: {forks}\n"
-                f"> Open ussies: {opened_issue}\n",
+                value=
+                f"> Open issues: {data.get('open_issues')}\n"
+                f"> Watched by: {data.get('watchers')} users\n"
+                f"> Is fork: {data.get('fork')}\n"
+                f"> Forks: {data.get('forks')}\n",
             )
-            embed.set_author(name=full_name, url=repo_url, icon_url=owner_url)
+            embed.add_field(
+                name="_ _",
+                value=
+                    f"> Created at: {created_at}\n"
+                    f"> Updated at: {updated_at}\n"
+                    f"> Pushed at: {pushed_at}\n"
+                    f"> Default branch: {data.get('default_branch')}\n"
+            )
+            embed.set_author(name=data['owner']['login'], url=data['owner']['html_url'], icon_url=data['owner']['avatar_url'])
+            embed.set_footer(text=data['license']['name'])
             await ctx.send(embed=embed)
 
 
