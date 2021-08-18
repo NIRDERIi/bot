@@ -73,7 +73,7 @@ class Search(commands.Cog):
         embed = discord.Embed(
             title="Search results - Youtube",
             description=embed_description,
-            color=Colours.invisible,
+            color=discord.Colour.blurple(),
             url="https://www.youtube.com/results?search_query={}".format(
                 "+".join(search_query.split(" "))
             ),

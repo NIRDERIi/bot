@@ -1,4 +1,4 @@
-from utils.converters import SourceConverter
+from utils.converters import Limit, SourceConverter
 from utils.functions import get_divmod
 from utils.constants import General
 from bot import Bot, CustomContext
@@ -69,6 +69,27 @@ class Info(commands.Cog):
             await message.edit(content=None, embed=embed)
         except discord.NotFound:
             await ctx.send(embed=embed)
+
+    @commands.command(aliases=["report", "suggest"])
+    @commands.cooldown(1, 10, commands.BucketType.member)
+    async def contact(self, ctx: CustomContext, *, bug: Limit(125)):
+        reports_channel = General.support_guild(self.bot).get_channel(
+            877633500780593273
+        )
+        if not reports_channel:
+            return
+
+        try:
+
+            await reports_channel.send(
+                embed=discord.Embed(
+                    description=bug,
+                    timestamp=datetime.datetime.now(),
+                    color=discord.Colour.blurple(),
+                ).set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
+            )
+        except:
+            pass
 
 
 def setup(bot: Bot):
