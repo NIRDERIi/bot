@@ -5,6 +5,7 @@ from utils.errors import ProcessError
 import pathlib
 import inspect
 from utils.constants import General
+import typing
 
 
 class Limit(commands.Converter):
@@ -51,28 +52,41 @@ class TimeConverter(commands.Converter):
 
 
 class SourceConverter(commands.Converter):
+
     async def convert(self, ctx: CustomContext, argument: str):
+        if '.env' in argument:
+            raise ProcessError('Your messages contains a forbidden file.')
 
-        results = {}  # {'name': {description: 'something', 'repo_link': 'link'}}
-
+        results = {} #{'name': {description: 'something', 'repo_link': 'link'}}
+        
         bot: Bot = ctx.bot
 
-        command: commands.Command = bot.get_command(argument.lower())
+        command: typing.Optional[commands.Command] = bot.get_command(argument.lower())
         if command:
-            lines, starting_line = inspect.getsourcelines(
-                inspect.unwrap(command.callback)
-            )
+            lines, starting_line = inspect.getsourcelines(inspect.unwrap(command.callback))
             ending_line = len(lines) + starting_line - 1
-            command_filename = inspect.getsourcefile(
-                inspect.unwrap(command.callback)
-            ).split("\\")[-1]
-            iterable = pathlib.Path().glob(f"**/{command_filename}")
+            command_filename = inspect.getsourcefile(inspect.unwrap(command.callback)).split('\\')[-1]
+            iterable = pathlib.Path().glob(f'**/{command_filename}')
             pathlib_path = [path_data for path_data in iterable][0]
-            short_path = "/".join(pathlib_path.parts)
+            short_path = '/'.join(pathlib_path.parts)
+            
+            full_link = f'{General.basic_repo}/blob/master/{short_path}#L{starting_line}-L{ending_line}'
+            results[f'Command: {command.qualified_name}'] = {'description': command.description, 'repo_link': full_link}
 
-            full_link = f"{General.basic_repo}/blob/master/{short_path}#L{starting_line}-L{ending_line}"
-            results[command.qualified_name] = {
-                "description": command.description,
-                "repo_link": full_link,
-            }
+        cog: typing.Optional[commands.Cog] = bot.get_cog(argument)
+        if cog:
+            filename = cog.qualified_name
+            iterable = pathlib.Path().glob(f'**/{filename}.py')
+            pathlib_path = [path_data for path_data in iterable][0]
+            short_path = '/'.join(pathlib_path.parts).lower()
+
+            full_link = f'{General.basic_repo}/blob/master/{short_path}'
+            results[f'Cog: {cog.qualified_name}'] = {'description': cog.__doc__, 'repo_link': full_link}
+        
+        iterable = pathlib.Path().glob(f'**/{argument.lower()}')
+        pathlib_paths_list = [i for i in iterable]
+        if pathlib_paths_list:
+            short_path = '/'.join(pathlib_paths_list[0].parts)
+            full_link = f'{General.basic_repo}/blob/master/{short_path}'
+            results[f'File {argument}'] = {'description': None, 'repo_link': full_link}
         return results
