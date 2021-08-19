@@ -12,6 +12,23 @@ import os
 
 load_dotenv()
 
+class CustomContext(commands.Context):
+    async def send_confirm(
+        self, *args, check: typing.Callable[..., bool] = None, **kwargs
+    ) -> typing.Tuple[discord.Message, typing.Optional[discord.ui.View]]:
+        if not kwargs.get("view"):
+            view = utils.buttons.ConfirmButtonBuild(
+                timeout=utils.constants.Time.basic_timeout, ctx=self, check=check
+            )
+            message = await self.send(*args, **kwargs, view=view)
+            await view.wait()
+            if view.value is None:
+                raise utils.errors.ProcessError("Timed out!")
+
+            return view, message
+        else:
+            return super().send(*args, **kwargs)
+
 
 class Bot(commands.Bot):
     def __init__(
@@ -87,20 +104,5 @@ class Bot(commands.Bot):
             self.load_extension(file_path)
         self.load_extension("jishaku")
 
-
-class CustomContext(commands.Context):
-    async def send_confirm(
-        self, *args, check: typing.Callable[..., bool] = None, **kwargs
-    ) -> typing.Tuple[discord.Message, typing.Optional[discord.ui.View]]:
-        if not kwargs.get("view"):
-            view = utils.buttons.ConfirmButtonBuild(
-                timeout=utils.constants.Time.basic_timeout, ctx=self, check=check
-            )
-            message = await self.send(*args, **kwargs, view=view)
-            await view.wait()
-            if view.value is None:
-                raise utils.errors.ProcessError("Timed out!")
-
-            return view, message
-        else:
-            return super().send(*args, **kwargs)
+    async def get_context(self, message: discord.Message, *, cls=CustomContext):
+        return await super().get_context(message, cls=cls)
