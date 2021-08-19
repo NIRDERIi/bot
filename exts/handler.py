@@ -88,8 +88,8 @@ class Handler(commands.Cog):
         elif isinstance(new_error, discord.Forbidden):
             embed.description = f"{new_error.text} Status {new_error.status}"
         else:
-            traceback.print_exception(type(error), error, error.__traceback__)
-            async with self.bot.pool.acquire(timeout=Time.BASIC_DBS_TIMEOUT()) as conn:
+            #traceback.print_exception(type(error), error, error.__traceback__) So it won't print the error, optional
+            async with self.bot.pool.acquire(timeout=Time.db_time) as conn:
                 bug_id = await conn.fetch(
                     """INSERT INTO bugs (guild_id, user_id, short_error, full_traceback, error_time) VALUES($1, $2, $3, $4, $5) RETURNING bug_id""",
                     ctx.guild.id,

@@ -6,6 +6,7 @@ import pathlib
 import inspect
 from utils.constants import General
 import typing
+import importlib
 
 
 class Limit(commands.Converter):
@@ -101,4 +102,45 @@ class SourceConverter(commands.Converter):
             short_path = "/".join(pathlib_paths_list[0].parts)
             full_link = f"{General.basic_repo}/blob/master/{short_path}"
             results[f"File {argument}"] = {"description": None, "repo_link": full_link}
+
+        file_modules: list = []
+        all_classes = []
+        all_functions = []
+        
+        for module in pathlib.Path().glob(f'**/*.py'):
+
+            if module.name != pathlib.Path(__file__).name:
+                file_modules.append(importlib.import_module('.'.join(module.parts)[-3]))
+
+        
+        for module in file_modules:
+            for name, _class in inspect.getmembers(module, inspect.isclass):
+
+                if name == argument:
+                    all_classes.append(_class)
+
+            for name, _function in inspect.getmembers(module, inspect.isfunction):
+                if name == argument:
+                    all_functions.append(_function)
+
+        all_classes = list(set(all_classes))
+        all_functions = list(set(all_functions))
+
+        if not all_classes and not all_functions and not results:
+            raise ProcessError(f'Could not convert {argument} to a valid command, cog, file, function or a class.')
+        
+        for _class in all_classes:
+            filename = inspect.getsourcefile(inspect.unwrap(_class)).split("\\")[-1]
+            iterable = pathlib.Path().glob(f'**/{filename}')
+            pathlib_path = [pathlib_path for pathlib_path in iterable][0]
+            short_path = '/'.join(pathlib_path.parts)
+
+            lines, starting_line = inspect.getsourcelines(_class)
+            ending_line = len(lines) + starting_line - 1
+
+            full_link = f'{General.basic_repo}/blob/master/{short_path}#L{starting_line}-L{ending_line}'
+            results[f'Class {argument}'] = {'description': _class.__doc__, 'repo_link': full_link}
+
+        
+
         return results
