@@ -84,7 +84,7 @@ class Search(commands.Cog):
 
     @commands.group(invoke_without_command=True, ignore_extra=False, aliases=["git"])
     async def github(self, ctx: CustomContext) -> None:
-        await get_group_help(ctx=ctx, group=ctx.command)
+        await ctx.send_help(ctx.command)
 
     @github.command(name="user", description="Shows info about github user.")
     async def github_user(self, ctx: CustomContext, *, name: Limit(char_limit=50)):
@@ -207,7 +207,6 @@ class Search(commands.Cog):
             )
             embed.set_footer(text=data["license"]["name"])
             await ctx.send(embed=embed)
-
 
 
 def setup(bot: Bot):
