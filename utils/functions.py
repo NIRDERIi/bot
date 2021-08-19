@@ -15,8 +15,9 @@ async def get_group_help(ctx: CustomContext, group: commands.Group):
     for command_tuple in commands_lst__tuples:
 
         embed = discord.Embed(
-            title=f"{group.qualified_name} commands.",
+            title=f"{group.qualified_name} commands group.",
             description="Subcommands:\n",
+            color=discord.Colour.blurple()
         )
 
         for command in command_tuple:
