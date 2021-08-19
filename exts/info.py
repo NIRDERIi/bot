@@ -56,22 +56,20 @@ class Info(commands.Cog):
 
         embed = discord.Embed(
             title="Hosting informations:",
-            description=
-            f"➜ CPU: {'0'}%/100%\n"
+            description=f"➜ CPU: {'0'}%/100%\n"
             f"➜ RAM: {'0'}%/100% ({'0'}MB left)\n"
             f"➜ Storage: {'0'}/0MB\n"
             f"➜ Uptime: {uptime_message}",
-            color=discord.Colour.blurple()
+            color=discord.Colour.blurple(),
         )
         embed.add_field(
             name="Bot informations:",
-            value=
-                f"➥ Latency:\n"
-                f"- Discord WebSocket: `{latency}ms`\n"
-                f"- Discord API: `{api_ms}ms`\n"
-                f"➥ Servers count: {guilds_count}\n"
-                f"➥ Users count: {users_count}\n"
-                f"➥ [Invite link]({General.invite_link}) - [Support server]({General.support_guild_invite})"
+            value=f"➥ Latency:\n"
+            f"- Discord WebSocket: `{latency}ms`\n"
+            f"- Discord API: `{api_ms}ms`\n"
+            f"➥ Servers count: {guilds_count}\n"
+            f"➥ Users count: {users_count}\n"
+            f"➥ [Invite link]({General.invite_link}) - [Support server]({General.support_guild_invite})",
         )
         embed.set_footer(text="©️ *****#0005, NIR#9473")
         embed.set_thumbnail(url=self.bot.user.avatar.url)
@@ -98,7 +96,11 @@ class Info(commands.Cog):
                     color=discord.Colour.blurple(),
                 ).set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
             )
-            await ctx.send(":mailbox_with_mail: {} Thanks for the feedback, we'll check it as soon as possible!".format(Emojis.custom_approval))
+            await ctx.send(
+                ":mailbox_with_mail: {} Thanks for the feedback, we'll check it as soon as possible!".format(
+                    Emojis.custom_approval
+                )
+            )
         except:
             pass
 

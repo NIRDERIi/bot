@@ -12,6 +12,7 @@ import os
 
 load_dotenv()
 
+
 class CustomContext(commands.Context):
     async def send_confirm(
         self, *args, check: typing.Callable[..., bool] = None, **kwargs

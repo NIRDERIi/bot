@@ -212,11 +212,18 @@ class Search(commands.Cog):
             await ctx.send(embed=embed)
 
     @commands.command(description="Searches for source data.")
-    async def source(self, ctx: CustomContext, *, source_item: typing.Optional[SourceConverter]):
+    async def source(
+        self, ctx: CustomContext, *, source_item: typing.Optional[SourceConverter]
+    ):
 
         if not source_item:
-            source_item = {'Bot repository.': {'description': 'Bot developed in Pythonmeant for moderational and fun purposes.', 'repo_link': General.basic_repo}}
-        
+            source_item = {
+                "Bot repository.": {
+                    "description": "Bot developed in Pythonmeant for moderational and fun purposes.",
+                    "repo_link": General.basic_repo,
+                }
+            }
+
         async def check(interaction: discord.Interaction):
             return interaction.user.id == ctx.author.id
 
