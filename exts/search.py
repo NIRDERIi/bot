@@ -211,19 +211,20 @@ class Search(commands.Cog):
 
     @commands.command(description='Searches for source data.')
     async def source(self, ctx: CustomContext, *, source_item: SourceConverter):
+        print(source_item)
         async def check(interaction: discord.Interaction):
             return interaction.user.id == ctx.author.id
-        paginator = Paginator(ctx=ctx, embeds=[], timeout=20.0)
+        paginator = Paginator(ctx=ctx, embeds=[], timeout=20.0, check=check)
         for name, data in source_item.items():
             repo_link = data.get('repo_link')
-            description = f'Source-link: {repo_link}'
+            description = f'[Click here]({repo_link}) for source link.'
             source_description = data.get('description')
+
+            embed = discord.Embed(title=name, description=description, color=Colours.invisible)
             if source_description:
-                description += f'\n**Description:** {source_description}'
-
-
-                embed = discord.Embed(title=name, description=description)
-                paginator.add_embed(embed)
+                embed.set_footer(text=source_description)
+            embed.set_thumbnail(url=General.github_icon)
+            paginator.add_embed(embed)
 
         await paginator.run()
             
