@@ -119,9 +119,9 @@ class SourceConverter(commands.Converter):
                 if name == argument:
                     all_classes.append(_class)
 
-            for name, _function in inspect.getmembers(module, inspect.isfunction):
+            for name, function in inspect.getmembers(module, inspect.isfunction):
                 if name == argument:
-                    all_functions.append(_function)
+                    all_functions.append(function)
 
         all_classes = list(set(all_classes))
         all_functions = list(set(all_functions))
@@ -141,6 +141,17 @@ class SourceConverter(commands.Converter):
             full_link = f'{General.basic_repo}/blob/master/{short_path}#L{starting_line}-L{ending_line}'
             results[f'Class {argument}'] = {'description': _class.__doc__, 'repo_link': full_link}
 
-        
+        for function in all_functions:
+            filename = inspect.getsourcefile(inspect.unwrap(function)).split("\\")[-1]
+            iterable = pathlib.Path().glob(f'**/{filename}')
+            pathlib_path = [pathlib_path for pathlib_path in iterable][0]
+            short_path = '/'.join(pathlib_path.parts)
+
+            lines, starting_line = inspect.getsourcelines(_class)
+            ending_line = len(lines) + starting_line - 1
+
+            full_link = f'{General.basic_repo}/blob/master/{short_path}#L{starting_line}-L{ending_line}'
+            results[f'Function {argument}'] = {'description': _class.__doc__, 'repo_link': full_link}
+
 
         return results
