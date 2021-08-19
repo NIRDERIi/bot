@@ -165,8 +165,8 @@ class Search(commands.Cog):
 
                 raise ProcessError(message)
 
-            repo_description = data.get("description")[:50]
-            repo_description += "..." if len(data.get("description")) > 50 else ""
+            repo_description = data.get("description")[:50] if data.get('description') else 'None'
+            repo_description += "..." if len(repo_description) > 50 else ""
 
             created_at = discord.utils.format_dt(
                 parse(data.get("created_at")), style="f"
@@ -205,7 +205,7 @@ class Search(commands.Cog):
                 url=data["owner"]["html_url"],
                 icon_url=data["owner"]["avatar_url"],
             )
-            embed.set_footer(text=data["license"]["name"])
+            embed.set_footer(text=license)
             await ctx.send(embed=embed)
 
 

@@ -9,8 +9,9 @@ class help_command(commands.HelpCommand):
     async def send_command_help(self, command: commands.Command):
         embed = discord.Embed(
             title="Command help: `{}`".format(command),
-            description="{}\n- Usage: `{}`".format(
-                command.description, self.get_command_signature(command)
+            description="```{}```\n{}".format(
+                await self.get_command_signature(command),
+                command.description if command.description else ''
             ),
             color=Colours.invisible,
         )
@@ -24,8 +25,8 @@ class help_command(commands.HelpCommand):
     ):
         signature = "{}{} {}".format(
             self.context.prefix,
-            self.context.command.qualified_name,
-            self.context.command.signature.replace("_", " "),
+            command.qualified_name,
+            command.signature.replace("_", " "),
         )
 
         return signature
