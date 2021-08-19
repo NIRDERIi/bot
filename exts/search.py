@@ -220,7 +220,7 @@ class Search(commands.Cog):
             repo_link = data.get("repo_link")
             description = f"[Click here]({repo_link}) for source link."
             embed = discord.Embed(
-                title=name, description=description, color=Colours.invisible
+                title=name, description=description, color=discord.Colour.blurple()
             )
             embed.set_thumbnail(url=General.github_icon)
             paginator.add_embed(embed)

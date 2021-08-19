@@ -146,7 +146,7 @@ class SourceConverter(commands.Converter):
             ending_line = len(lines) + starting_line - 1
 
             full_link = f"{General.basic_repo}/blob/master/{short_path}#L{starting_line}-L{ending_line}"
-            results[f"Class {argument}"] = {
+            results[f"Class: {argument}"] = {
                 "description": _class.__doc__,
                 "repo_link": full_link,
             }
@@ -161,7 +161,7 @@ class SourceConverter(commands.Converter):
             ending_line = len(lines) + starting_line - 1
 
             full_link = f"{General.basic_repo}/blob/master/{short_path}#L{starting_line}-L{ending_line}"
-            results[f"Function {argument}"] = {
+            results[f"Function: {argument}"] = {
                 "description": _class.__doc__,
                 "repo_link": full_link,
             }
