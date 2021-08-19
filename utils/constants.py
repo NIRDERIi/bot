@@ -9,11 +9,6 @@ class Emojis:
     custom_denial: str = "<:cross:877900968417722378>"
 
 
-class Time:
-
-    basic_timeout: int = 20.0
-
-
 class General:
 
     support_guild_invite: str = "https://discord.gg/utdP2JRVRj"
