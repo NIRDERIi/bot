@@ -1,5 +1,4 @@
 from utils.buttons import Paginator
-import discord
 from utils.functions import get_group_help, get_divmod
 from utils.constants import Colours, General
 from utils.converters import Limit, SourceConverter
@@ -7,10 +6,10 @@ from utils.errors import ProcessError
 from discord.ext import commands
 from dateutil.parser import parse
 from bot import Bot, CustomContext
-from translate import Translator
 from youtubesearchpython import (
     VideosSearch,
 )
+import discord
 
 
 statuses = {
@@ -85,7 +84,7 @@ class Search(commands.Cog):
 
     @commands.group(invoke_without_command=True, ignore_extra=False, aliases=["git"])
     async def github(self, ctx: CustomContext) -> None:
-        await ctx.send_help(ctx.command)
+        await get_group_help(ctx, ctx.command)
 
     @github.command(name="user", description="Shows info about github user.")
     async def github_user(self, ctx: CustomContext, *, name: Limit(char_limit=50)):
@@ -166,7 +165,9 @@ class Search(commands.Cog):
 
                 raise ProcessError(message)
 
-            repo_description = data.get("description")[:50] if data.get('description') else 'None'
+            repo_description = (
+                data.get("description")[:50] if data.get("description") else "None"
+            )
             repo_description += "..." if len(repo_description) > 50 else ""
 
             created_at = discord.utils.format_dt(
@@ -209,25 +210,24 @@ class Search(commands.Cog):
             embed.set_footer(text=license)
             await ctx.send(embed=embed)
 
-    @commands.command(description='Searches for source data.')
+    @commands.command(description="Searches for source data.")
     async def source(self, ctx: CustomContext, *, source_item: SourceConverter):
         print(source_item)
+
         async def check(interaction: discord.Interaction):
             return interaction.user.id == ctx.author.id
+
         paginator = Paginator(ctx=ctx, embeds=[], timeout=20.0, check=check)
         for name, data in source_item.items():
-            repo_link = data.get('repo_link')
-            description = f'[Click here]({repo_link}) for source link.'
-            source_description = data.get('description')
-
-            embed = discord.Embed(title=name, description=description, color=Colours.invisible)
-            if source_description:
-                embed.set_footer(text=source_description)
+            repo_link = data.get("repo_link")
+            description = f"[Click here]({repo_link}) for source link."
+            embed = discord.Embed(
+                title=name, description=description, color=Colours.invisible
+            )
             embed.set_thumbnail(url=General.github_icon)
             paginator.add_embed(embed)
 
         await paginator.run()
-            
 
 
 def setup(bot: Bot):

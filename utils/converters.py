@@ -101,8 +101,11 @@ class SourceConverter(commands.Converter):
         if pathlib_paths_list:
             short_path = "/".join(pathlib_paths_list[0].parts)
             full_link = f"{General.basic_repo}/blob/master/{short_path}"
-            filename_source = short_path.split('/')[-1]
-            results[f"File: {filename_source}"] = {"description": None, "repo_link": full_link}
+            filename_source = short_path.split("/")[-1]
+            results[f"File: {filename_source}"] = {
+                "description": None,
+                "repo_link": full_link,
+            }
 
         file_modules: list = []
         all_classes = []
@@ -111,7 +114,9 @@ class SourceConverter(commands.Converter):
         for module in pathlib.Path().glob(f"**/*.py"):
 
             if module.name != pathlib.Path(__file__).name:
-                file_modules.append(importlib.import_module(".".join(module.parts)[:-3]))
+                file_modules.append(
+                    importlib.import_module(".".join(module.parts)[:-3])
+                )
 
         for module in file_modules:
             for name, _class in inspect.getmembers(module, inspect.isclass):
@@ -140,20 +145,25 @@ class SourceConverter(commands.Converter):
             lines, starting_line = inspect.getsourcelines(_class)
             ending_line = len(lines) + starting_line - 1
 
-            full_link = f'{General.basic_repo}/blob/master/{short_path}#L{starting_line}-L{ending_line}'
-            results[f'Class {argument}'] = {'description': _class.__doc__, 'repo_link': full_link}
+            full_link = f"{General.basic_repo}/blob/master/{short_path}#L{starting_line}-L{ending_line}"
+            results[f"Class {argument}"] = {
+                "description": _class.__doc__,
+                "repo_link": full_link,
+            }
 
         for function in all_functions:
             filename = inspect.getsourcefile(inspect.unwrap(function)).split("\\")[-1]
-            iterable = pathlib.Path().glob(f'**/{filename}')
+            iterable = pathlib.Path().glob(f"**/{filename}")
             pathlib_path = [pathlib_path for pathlib_path in iterable][0]
-            short_path = '/'.join(pathlib_path.parts)
+            short_path = "/".join(pathlib_path.parts)
 
             lines, starting_line = inspect.getsourcelines(_class)
             ending_line = len(lines) + starting_line - 1
 
-            full_link = f'{General.basic_repo}/blob/master/{short_path}#L{starting_line}-L{ending_line}'
-            results[f'Function {argument}'] = {'description': _class.__doc__, 'repo_link': full_link}
-
+            full_link = f"{General.basic_repo}/blob/master/{short_path}#L{starting_line}-L{ending_line}"
+            results[f"Function {argument}"] = {
+                "description": _class.__doc__,
+                "repo_link": full_link,
+            }
 
         return results

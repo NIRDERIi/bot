@@ -1,4 +1,4 @@
-from utils.converters import Limit, SourceConverter
+from utils.converters import Limit
 from utils.functions import get_divmod
 from utils.constants import General
 from bot import Bot, CustomContext
