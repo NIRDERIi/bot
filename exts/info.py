@@ -14,10 +14,10 @@ class Info(commands.Cog):
 
     @commands.command(
         description="Sends general info about the bot.",
-        aliases=["info", "ping", "latency"],
+        aliases=["ping", "latency"],
     )
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def status(self, ctx: CustomContext) -> None:
+    async def info(self, ctx: CustomContext) -> None:
         # Getting api latency
         api_start_time = time.time()
         message = await ctx.send("Testing latency...")
