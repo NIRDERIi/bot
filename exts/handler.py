@@ -33,7 +33,7 @@ class Handler(commands.Cog):
             )
             embed.description = f"How to use: `{signature}`"
         elif isinstance(error, commands.TooManyArguments):
-            embed.description = str(error.args)
+            embed.description = str(error.args[0])
         elif isinstance(error, commands.MessageNotFound):
             embed.description = (
                 f"Could not find message by argument: `{error.argument}`"

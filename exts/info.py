@@ -1,6 +1,6 @@
 from utils.converters import Limit
 from utils.functions import get_divmod
-from utils.constants import General
+from utils.constants import General, Emojis
 from bot import Bot, CustomContext
 from discord.ext import commands
 import datetime
@@ -88,6 +88,7 @@ class Info(commands.Cog):
                     color=discord.Colour.blurple(),
                 ).set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
             )
+            await ctx.send(":mailbox_with_mail: {} Thanks for the feedback, we'll check it as soon as possible!".format(Emojis.custom_approval))
         except:
             pass
 

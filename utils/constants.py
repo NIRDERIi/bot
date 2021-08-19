@@ -1,12 +1,12 @@
 class Emojis:
 
-    right_arrow: str = "<:right_arrow:864597473347764228>"
-    left_arrow: str = "<:left_arrow:864772067350020106>"
-    double_right_arrows: str = "<:double_right_arrows:864844402627575808>"
-    double_left_arrows: str = "<:double_left_arrows:864844981369700364>"
-    garbage: str = "<:trash:864773116794503178>"
-    custom_approval: str = "<:box_check_mark:865121266969477120>"
-    custom_denial: str = "<:X_:864991033914163239>"
+    right_arrow: str = "<:right:877900968329609217>"
+    left_arrow: str = "<:left:877900968547737620>"
+    double_right_arrows: str = "<:doubleright:877900967717265458>"
+    double_left_arrows: str = "<:doubleleft:877900967796944966>"
+    garbage: str = "<:trash:877900967952121887>"
+    custom_approval: str = "<:check:877900968195407872>"
+    custom_denial: str = "<:cross:877900968417722378>"
 
 
 class Time:
