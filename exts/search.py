@@ -84,7 +84,7 @@ class Search(commands.Cog):
 
     @commands.group(invoke_without_command=True, ignore_extra=False, aliases=["git"])
     async def github(self, ctx: CustomContext) -> None:
-        await get_group_help(ctx=ctx, group=ctx.command)
+        await ctx.send_help(ctx.command)
 
     @github.command(name="user", description="Shows info about github user.")
     async def github_user(self, ctx: CustomContext, *, name: Limit(char_limit=50)):
@@ -165,8 +165,8 @@ class Search(commands.Cog):
 
                 raise ProcessError(message)
 
-            repo_description = data.get("description")[:50]
-            repo_description += "..." if len(data.get("description")) > 50 else ""
+            repo_description = data.get("description")[:50] if data.get('description') else 'None'
+            repo_description += "..." if len(repo_description) > 50 else ""
 
             created_at = discord.utils.format_dt(
                 parse(data.get("created_at")), style="f"
@@ -205,18 +205,9 @@ class Search(commands.Cog):
                 url=data["owner"]["html_url"],
                 icon_url=data["owner"]["avatar_url"],
             )
-            embed.set_footer(text=data["license"]["name"])
+            embed.set_footer(text=license)
             await ctx.send(embed=embed)
 
-    @commands.command(aliases=["translator"])
-    async def translate(self, ctx: CustomContext, language: str, *, text: str):
-        translator = Translator(to_lang=language, from_lang='autodetect', provider='microsoft')
-        translation = self.bot.loop.run_in_executor(None, translator.translate(text))
-
-        embed = discord.Embed(description=translation)
-        embed.set_author(name="Microsoft Translator", icon_url=General.microsoft_translator_icon)
-
-        await ctx.send(embed=embed)
 
 def setup(bot: Bot):
     bot.add_cog(Search(bot))

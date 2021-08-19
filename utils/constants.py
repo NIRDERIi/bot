@@ -33,6 +33,7 @@ class Colours:
 
     invisible: int = 0x2F3136
 
+
 class Time:
 
     db_time: int = 20.0

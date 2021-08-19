@@ -106,13 +106,12 @@ class SourceConverter(commands.Converter):
         file_modules: list = []
         all_classes = []
         all_functions = []
-        
-        for module in pathlib.Path().glob(f'**/*.py'):
+
+        for module in pathlib.Path().glob(f"**/*.py"):
 
             if module.name != pathlib.Path(__file__).name:
-                file_modules.append(importlib.import_module('.'.join(module.parts)[-3]))
+                file_modules.append(importlib.import_module(".".join(module.parts)[-3]))
 
-        
         for module in file_modules:
             for name, _class in inspect.getmembers(module, inspect.isclass):
 
@@ -127,13 +126,15 @@ class SourceConverter(commands.Converter):
         all_functions = list(set(all_functions))
 
         if not all_classes and not all_functions and not results:
-            raise ProcessError(f'Could not convert {argument} to a valid command, cog, file, function or a class.')
-        
+            raise ProcessError(
+                f"Could not convert {argument} to a valid command, cog, file, function or a class."
+            )
+
         for _class in all_classes:
             filename = inspect.getsourcefile(inspect.unwrap(_class)).split("\\")[-1]
-            iterable = pathlib.Path().glob(f'**/{filename}')
+            iterable = pathlib.Path().glob(f"**/{filename}")
             pathlib_path = [pathlib_path for pathlib_path in iterable][0]
-            short_path = '/'.join(pathlib_path.parts)
+            short_path = "/".join(pathlib_path.parts)
 
             lines, starting_line = inspect.getsourcelines(_class)
             ending_line = len(lines) + starting_line - 1

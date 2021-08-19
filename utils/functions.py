@@ -24,6 +24,7 @@ async def get_group_help(ctx: CustomContext, group: commands.Group):
             embed.description += (
                 f"> {command.name} {command.signature.replace('_', ' ')}\n"
             )
+        embed.set_footer(text="run !help <subcommand>")
 
         paginator.add_embed(embed=embed)
 
