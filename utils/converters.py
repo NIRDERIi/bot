@@ -54,6 +54,7 @@ class TimeConverter(commands.Converter):
 
 class SourceConverter(commands.Converter):
     async def convert(self, ctx: CustomContext, argument: str):
+
         if ".env" in argument:
             raise ProcessError("Your messages contains a forbidden file.")
 
@@ -165,5 +166,4 @@ class SourceConverter(commands.Converter):
                 "description": _class.__doc__,
                 "repo_link": full_link,
             }
-
         return results
