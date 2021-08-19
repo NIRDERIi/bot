@@ -2,8 +2,8 @@ class Emojis:
 
     right_arrow: str = "<:right:877900968329609217>"
     left_arrow: str = "<:left:877900968547737620>"
-    double_right_arrows: str = "<:doubleright:877900967717265458>"
-    double_left_arrows: str = "<:doubleleft:877900967796944966>"
+    double_right_arrows: str = "<:forward:877922025295999036>"
+    double_left_arrows: str = "<:backward:877922024809431112>"
     garbage: str = "<:trash:877900967952121887>"
     custom_approval: str = "<:check:877900968195407872>"
     custom_denial: str = "<:cross:877900968417722378>"
