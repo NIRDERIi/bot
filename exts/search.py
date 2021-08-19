@@ -208,15 +208,7 @@ class Search(commands.Cog):
             embed.set_footer(text=data["license"]["name"])
             await ctx.send(embed=embed)
 
-    @commands.command(aliases=["translator"])
-    async def translate(self, ctx: CustomContext, language: str, *, text: str):
-        translator = Translator(to_lang=language, from_lang='autodetect', provider='microsoft')
-        translation = self.bot.loop.run_in_executor(None, translator.translate(text))
 
-        embed = discord.Embed(description=translation)
-        embed.set_author(name="Microsoft Translator", icon_url=General.microsoft_translator_icon)
-
-        await ctx.send(embed=embed)
 
 def setup(bot: Bot):
     bot.add_cog(Search(bot))
