@@ -101,7 +101,7 @@ class SourceConverter(commands.Converter):
         if pathlib_paths_list:
             short_path = "/".join(pathlib_paths_list[0].parts)
             full_link = f"{General.basic_repo}/blob/master/{short_path}"
-            results[f"File {argument}"] = {"description": None, "repo_link": full_link}
+            results[f"File {argument.lower()}"] = {"description": None, "repo_link": full_link}
 
         file_modules: list = []
         all_classes = []

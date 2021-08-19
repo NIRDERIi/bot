@@ -1,7 +1,8 @@
+from utils.buttons import Paginator
 import discord
 from utils.functions import get_group_help, get_divmod
 from utils.constants import Colours, General
-from utils.converters import Limit
+from utils.converters import Limit, SourceConverter
 from utils.errors import ProcessError
 from discord.ext import commands
 from dateutil.parser import parse
@@ -207,6 +208,25 @@ class Search(commands.Cog):
             )
             embed.set_footer(text=license)
             await ctx.send(embed=embed)
+
+    @commands.command(description='Searches for source data.')
+    async def source(self, ctx: CustomContext, *, source_item: SourceConverter):
+        async def check(interaction: discord.Interaction):
+            return interaction.user.id == ctx.author.id
+        paginator = Paginator(ctx=ctx, embeds=[], timeout=20.0)
+        for name, data in source_item.items():
+            repo_link = data.get('repo_link')
+            description = f'Source-link: {repo_link}'
+            source_description = data.get('description')
+            if source_description:
+                description += f'\n**Description:** {source_description}'
+
+
+                embed = discord.Embed(title=name, description=description)
+                paginator.add_embed(embed)
+
+        await paginator.run()
+            
 
 
 def setup(bot: Bot):
