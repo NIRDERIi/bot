@@ -110,7 +110,7 @@ class SourceConverter(commands.Converter):
         for module in pathlib.Path().glob(f"**/*.py"):
 
             if module.name != pathlib.Path(__file__).name:
-                file_modules.append(importlib.import_module(".".join(module.parts)[-3]))
+                file_modules.append(importlib.import_module(".".join(module.parts)[:-3]))
 
         for module in file_modules:
             for name, _class in inspect.getmembers(module, inspect.isclass):
