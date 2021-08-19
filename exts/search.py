@@ -212,7 +212,6 @@ class Search(commands.Cog):
 
     @commands.command(description="Searches for source data.")
     async def source(self, ctx: CustomContext, *, source_item: SourceConverter):
-
         async def check(interaction: discord.Interaction):
             return interaction.user.id == ctx.author.id
 
