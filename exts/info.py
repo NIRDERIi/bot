@@ -50,20 +50,30 @@ class Info(commands.Cog):
         if minutes:
             uptime_message += f"{minutes}m, "
         if seconds:
-            uptime_message += f"{seconds}s ago."
+            uptime_message += f"{seconds}s"
 
         # Sending the embed
 
         embed = discord.Embed(
-            title="Bot informations:",
-            description=f"➥ Started: {uptime_message}\n"
-            f"➥ Servers: {guilds_count}\n"
-            f"➥ Users: {users_count}\n"
-            f"➥ Latency:\n"
-            f"- Discord API: `{api_ms}ms`\n"
-            f"- Discord WebSocket: `{latency}ms`\n"
-            f"[Support server]({General.support_guild_invite}) - [Invite link]({General.invite_link})",
+            title="Hosting informations:",
+            description=
+            f"➜ CPU: {'0'}%/100%\n"
+            f"➜ RAM: {'0'}%/100% ({'0'}MB left)\n"
+            f"➜ Storage: {'0'}/0MB\n"
+            f"➜ Uptime: {uptime_message}",
+            color=discord.Colour.blurple()
         )
+        embed.add_field(
+            name="Bot informations:",
+            value=
+                f"➥ Latency:\n"
+                f"- Discord WebSocket: `{latency}ms`\n"
+                f"- Discord API: `{api_ms}ms`\n"
+                f"➥ Servers count: {guilds_count}\n"
+                f"➥ Users count: {users_count}\n"
+                f"➥ [Invite link]({General.invite_link}) - [Support server]({General.support_guild_invite})"
+        )
+        embed.set_footer(text="©️ *****#0005, NIR#9473")
         embed.set_thumbnail(url=self.bot.user.avatar.url)
         try:
             await message.edit(content=None, embed=embed)

@@ -16,8 +16,6 @@ class Time:
 
 class General:
 
-    microsoft_translator_icon: str = "https://connectoricons-prod.azureedge.net/releases/v1.0.1445/1.0.1445.2347/microsofttranslator/icon.png"
-
     support_guild_invite: str = "https://discord.gg/utdP2JRVRj"
 
     support_guild = lambda b: b.get_guild(874324120375013408)
