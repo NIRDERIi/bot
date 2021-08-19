@@ -20,12 +20,13 @@ class Handler(commands.Cog):
     ):
         new_error = getattr(error, "original", error)
         embed = discord.Embed(
-            title=re.sub("(?<!^)(?=[A-Z])", " ", str(type(new_error).__name__)),
+            title=re.sub("(?<!^)(?=[A-Z])", " ", str(type(new_error).__name__)).capitalize(),
             color=discord.Colour.red(),
         )
         if isinstance(error, commands.MissingRequiredArgument):
+            signature = "{}{} {}".format(ctx.prefix, ctx.command.qualified_name, ctx.command.signature.replace('_', ' '))
             embed.description = (
-                f"`{error.param.name}` is a required argument that is missing."
+                f"How to use: `{signature}`"
             )
         elif isinstance(error, commands.TooManyArguments):
             embed.description = str(error.args)
