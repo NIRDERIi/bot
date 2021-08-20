@@ -29,7 +29,7 @@ class Info(commands.Cog):
 
         db_start_time = time.time()
         async with self.bot.pool.acquire(timeout=10.0) as conn:
-            await conn.fetch('''SELECT * FROM tags''')
+            await conn.fetch("""SELECT * FROM tags""")
         db_end_time = time.time()
         db_ms = round((db_end_time - db_start_time) * 1000)
 

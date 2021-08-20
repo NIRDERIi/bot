@@ -1,9 +1,7 @@
 from bot import CustomContext, Bot
-from utils.errors import ProcessError
 from utils.constants import Time, Emojis
 from discord.ext import commands
 import datetime
-import re
 
 
 class Tags(commands.Cog):
@@ -28,7 +26,6 @@ class Tags(commands.Cog):
     async def create(self, ctx: CustomContext, name: str, *, content: str):
         async with self.bot.pool.acquire(timeout=Time.db_time) as conn:
             name = name.lower()
-            regex = re.compile(r"<@!?([0-9]+)>$")
 
             if not name.isascii:
                 return await ctx.send(
@@ -42,7 +39,7 @@ class Tags(commands.Cog):
                 return await ctx.send(f"{Emojis.custom_denial} Tag already exist.")
 
             query = "INSERT INTO tags (guild_id, owner_id, tag_title, tag_content, uses, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7)"
-            results = await conn.execute(
+            await conn.execute(
                 query,
                 ctx.guild.id,
                 ctx.author.id,
