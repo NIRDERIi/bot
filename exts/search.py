@@ -220,7 +220,7 @@ class Search(commands.Cog):
         if not source_item:
             source_item = {
                 "Bot repository.": {
-                    "description": "Bot developed in Pythonmeant for moderational and fun purposes.",
+                    "description": "Bot developed in Python meant for moderational and fun purposes.",
                     "repo_link": General.basic_repo,
                 }
             }
