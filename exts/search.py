@@ -1,6 +1,6 @@
 from utils.buttons import Paginator
 from utils.functions import get_group_help, get_divmod
-from utils.constants import Colours, General
+from utils.constants import General
 from utils.converters import Limit, SourceConverter
 from utils.errors import ProcessError
 from discord.ext import commands
@@ -239,6 +239,26 @@ class Search(commands.Cog):
             paginator.add_embed(embed)
 
         await paginator.run()
+
+    @commands.command(aliases=["dict"])
+    async def dictionary(self, ctx: CustomContext, word: str):
+        async with self.bot.session.get(
+            f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}"
+        ) as res:
+            json_data = await res.json()
+            json_data = json_data[0]
+
+            embed = discord.Embed(
+                title=f"Definitions for {json_data['word']}",
+                description=json_data['origin'],
+                color=discord.Colour.blurple()
+            )
+            z = 0
+            for i in json_data['meanings'][:4]:
+                embed.add_field(name=i['partOfSpeech'], value=i['definitions'][0]['definition'])
+                z += 1
+            embed.set_thumbnail(url=self.bot.user.avatar.url)
+            await ctx.send(embed=embed)
 
 
 def setup(bot: Bot):
