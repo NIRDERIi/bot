@@ -24,7 +24,7 @@ class Fun(commands.Cog):
             stdout: str = data.get('stdout')
             return_code = data.get('returncode')
             lines = stdout.splitlines()
-            output = '\n'.join([f'{index + 1} | {line}' for index, line in enumerate(lines)])
+            output = '\n'.join([f'{str(index + 1).zfill(3)} | {line}' for index, line in enumerate(lines)])
             if return_code == 0:
                 emoji = ':white_check_mark:'
             else:
