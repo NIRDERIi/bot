@@ -1,4 +1,5 @@
 from utils.errors import ProcessError
+from utils.functions import paste
 from discord.ext import commands
 
 from bot import Bot, CustomContext
@@ -41,6 +42,9 @@ class Fun(commands.Cog):
             if too_long:
                 output += "\n... | (too many lines)"
             content += f'\n```{output}```'
+            if too_long:
+                url = await paste(self.bot, '\n'.join([f'{str(index + 1).zfill(3)} | {line}' for index, line in enumerate(lines)]))
+                content += f"\nFull output in: {url}"
             await ctx.send(content=content)
 
 
