@@ -27,11 +27,11 @@ class Info(commands.Cog):
         # Getting WebSocket latency and database's
         latency = round(self.bot.latency * 1000)
 
-        # db_start_time = time.time()
-        # async with self.bot.pool.acquire(timeout=10.0) as conn:
-        #     await conn.fetch('''SELECT * FROM guilds_config''')
-        # db_end_time = time.time()
-        # db_ms = round((db_end_time - db_start_time) * 1000)
+        db_start_time = time.time()
+        async with self.bot.pool.acquire(timeout=10.0) as conn:
+            await conn.fetch('''SELECT * FROM tags''')
+        db_end_time = time.time()
+        db_ms = round((db_end_time - db_start_time) * 1000)
 
         # Defining guilds/users count
         guilds_count = len(self.bot.guilds)
@@ -67,6 +67,7 @@ class Info(commands.Cog):
             value=f"➥ Latency:\n"
             f"- Discord WebSocket: `{latency}ms`\n"
             f"- Discord API: `{api_ms}ms`\n"
+            f"- Database: `{db_ms}ms`\n"
             f"➥ Servers count: {guilds_count}\n"
             f"➥ Users count: {users_count}\n"
             f"➥ [Invite link]({General.invite_link}) - [Support server]({General.support_guild_invite})",
