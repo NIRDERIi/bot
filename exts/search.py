@@ -250,12 +250,14 @@ class Search(commands.Cog):
 
             embed = discord.Embed(
                 title=f"Definitions for {json_data['word']}",
-                description=json_data['origin'],
-                color=discord.Colour.blurple()
+                description=json_data["origin"],
+                color=discord.Colour.blurple(),
             )
             z = 0
-            for i in json_data['meanings'][:4]:
-                embed.add_field(name=i['partOfSpeech'], value=i['definitions'][0]['definition'])
+            for i in json_data["meanings"][:4]:
+                embed.add_field(
+                    name=i["partOfSpeech"], value=i["definitions"][0]["definition"]
+                )
                 z += 1
             embed.set_thumbnail(url=self.bot.user.avatar.url)
             await ctx.send(embed=embed)

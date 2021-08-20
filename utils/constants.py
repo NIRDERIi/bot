@@ -7,6 +7,7 @@ class Emojis:
     garbage: str = "<:trash:877900967952121887>"
     custom_approval: str = "<:check:877900968195407872>"
     custom_denial: str = "<:cross:877900968417722378>"
+    backspace: str = "<:backspace:878373413469687919>"
 
 
 class General:

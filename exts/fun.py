@@ -1,15 +1,18 @@
+import discord
 from utils.errors import ProcessError
 from utils.functions import paste
 from discord.ext import commands
 
 from bot import Bot, CustomContext
 from utils.converters import CodeConverter
+from utils.buttons import Calculator
 
 
 class Fun(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
         self.snekbox_url = "http://localhost:8060/eval"
+        self.running_calc = []
 
     @commands.command(description="Runs Python code.", aliases=["exec", "execute"])
     async def run(self, ctx: CustomContext, *, code: CodeConverter):
@@ -60,6 +63,21 @@ class Fun(commands.Cog):
                 )
                 content += f"\nFull output in: {url}"
             await ctx.send(content=content)
+
+    @commands.command(
+        name="calculator", description="Displays button calculator.", aliases=["calc"]
+    )
+    async def _calculator(self, ctx: CustomContext):
+        if ctx.author.id in self.running_calc:
+            raise ProcessError("You already have a running calculator.")
+
+        calculator = Calculator(ctx, timeout=20.0)
+        self.running_calc.append(ctx.author.id)
+        view: discord.ui.View = await calculator.run(
+            embed=discord.Embed(title="Math genius.", color=discord.Colour.blurple())
+        )
+        await view.wait()
+        self.running_calc.remove(ctx.author.id)
 
 
 def setup(bot: Bot):
