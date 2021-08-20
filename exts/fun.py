@@ -11,9 +11,8 @@ class Fun(commands.Cog):
         self.bot = bot
         self.snekbox_url = 'http://localhost:8060/eval'
 
-    @commands.command(description='Runs Python code.')
+    @commands.command(description='Runs Python code.', aliases=['exec', 'execute'])
     async def run(self, ctx: CustomContext, *, code: CodeConverter):
-        print(code)
 
         async with self.bot.session.post(url=self.snekbox_url, json={'input': code}) as response:
 
@@ -22,12 +21,22 @@ class Fun(commands.Cog):
                 raise ProcessError(f'Calling snekbox returned a bad status code: `{response.status}`')
 
             data = await response.json()
-            print(data)
-            stdout = data.get('stdout')
-            print(stdout)
+            stdout: str = data.get('stdout')
             return_code = data.get('returncode')
-            content = f'{ctx.author.mention} :white_check_mark:, your eval job returned code {return_code}.'
-            content += f'\n```{stdout}```'
+            lines = stdout.splitlines()
+            output = '\n'.join([f'{index + 1} | {line}' for index, line in enumerate(lines)])
+            if return_code == 0:
+                emoji = ':white_check_mark:'
+            else:
+                emoji = ':x:'
+            if not output:
+                output = '[No output]'
+                emoji = ':warning:'
+            if return_code == 137:
+                content = f'{ctx.author.mention} {emoji}, your eval job ran out of memory.'
+            else:
+                content = f'{ctx.author.mention} {emoji}, your eval job returned code {return_code}.'
+            content += f'\n```{output}```'
             await ctx.send(content=content)
 
 
