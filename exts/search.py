@@ -208,7 +208,8 @@ class Search(commands.Cog):
                 url=data["owner"]["html_url"],
                 icon_url=data["owner"]["avatar_url"],
             )
-            embed.set_footer(text=license)
+            if license:
+                embed.set_footer(text=license)
             await ctx.send(embed=embed)
 
     @commands.command(description="Searches for source data.")

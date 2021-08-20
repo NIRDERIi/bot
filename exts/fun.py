@@ -19,7 +19,6 @@ class Fun(commands.Cog):
             if response.status != 200:
 
                 raise ProcessError(f'Calling snekbox returned a bad status code: `{response.status}`')
-
             data = await response.json()
             stdout: str = data.get('stdout')
             return_code = data.get('returncode')
