@@ -24,7 +24,10 @@ class Fun(commands.Cog):
             stdout: str = data.get('stdout')
             return_code = data.get('returncode')
             lines = stdout.splitlines()
-            output = '\n'.join([f'{str(index + 1).zfill(3)} | {line}' for index, line in enumerate(lines)])
+            too_long = False
+            if len(lines) > 10:
+                too_long = True
+            output = '\n'.join([f'{str(index + 1).zfill(3)} | {line}' for index, line in enumerate(lines[:10])])
             if return_code == 0:
                 emoji = ':white_check_mark:'
             else:
@@ -36,6 +39,8 @@ class Fun(commands.Cog):
                 content = f'{ctx.author.mention} {emoji}, your eval job ran out of memory.'
             else:
                 content = f'{ctx.author.mention} {emoji}, your eval job returned code {return_code}.'
+            if too_long:
+                output += "\n... | (too many lines)"
             content += f'\n```{output}```'
             await ctx.send(content=content)
 
