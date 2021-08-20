@@ -51,7 +51,9 @@ class Fun(commands.Cog):
                 content = f"{ctx.author.mention} {emoji}, your eval job returned code {return_code}."
             if too_long:
                 output += "\n... | (too many lines)"
-            content += f"\n```{output}```"
+            if stdout == "":
+                output = "[No output]"
+            content += f"\n```\n{output}\n```"
             if too_long:
                 url = await paste(
                     self.bot, "\n".join([line for _, line in enumerate(lines)])
