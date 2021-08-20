@@ -3,6 +3,7 @@ from bot import CustomContext
 import typing
 import contextlib
 from utils.constants import Emojis
+from utils.errors import ProcessError
 
 
 class Paginator:
@@ -147,3 +148,163 @@ class ConfirmButtonBuild(discord.ui.View):
     ) -> None:
         self.value = False
         self.stop()
+
+
+
+class Calculator:
+
+    def __init__(self, ctx: CustomContext, *, check: typing.Callable[..., bool]=None, timeout: typing.Optional[float]=None):
+
+        self.ctx = ctx
+        if not check:
+            async def check(interaction: discord.Interaction):
+                return interaction.user.id == self.ctx.author.id
+
+        self.check = check
+        self.timeout = timeout
+
+    async def run(
+        self,
+        content: str=None, 
+        *,
+        embed: discord.Embed=None):
+
+        """Calling buttons class."""
+        button_calculator = ButtonCalculator(self.ctx, embed, self.check, timeout=self.timeout)
+        await self.ctx.send(content=content, embed=embed, view=button_calculator)
+
+class ButtonCalculator(discord.ui.View):
+
+    def __init__(self, ctx: CustomContext, embed: discord.Embed, check: typing.Callable[..., bool], *, timeout: typing.Optional[float]=None):
+
+        super().__init__(timeout=timeout)
+        self.ctx = ctx
+        self.interaction_check = check
+        self.expression = ''
+        self.base_embed = embed
+        self.base_embed.description = '```>```'
+
+    async def set_embed(self, interaction: discord.Interaction, description: str=None): #Sets an embed with description inside ```
+        description = description or self.expression
+        description = f'```> {description}```' if description else '```>```'
+        self.base_embed.description = f'{description}'
+        await interaction.response.edit_message(embed=self.base_embed)
+
+
+    def len_check(self):
+        if len(self.expression) > 15:
+            self.stop()
+            raise ProcessError('The expression can\'t be longer than 15 chars.')
+    
+    @discord.ui.button(label='C', row=0)
+    async def clear(self, button: discord.Button, interaction: discord.Interaction):
+        self.expression = ''
+        await self.set_embed(interaction=interaction)
+
+
+    
+    @discord.ui.button(label='(', row=0)
+    async def add_start_brace(self, button: discord.Button, interaction: discord.Interaction):
+        self.expression += f'{button.label}'
+        self.len_check()
+        await self.set_embed(interaction=interaction)
+    
+    @discord.ui.button(label=')', row=0)
+    async def add_ending_brace(self, button: discord.Button, interaction: discord.Interaction):
+        self.expression += f'{button.label}'
+        self.len_check()
+        await self.set_embed(interaction=interaction)
+
+    @discord.ui.button(label='%', row=0)
+    async def add_precentage(self, button: discord.Button, interaction: discord.Interaction):
+        self.expression += f'{button.label}'
+        self.len_check()
+        await self.set_embed(interaction=interaction)
+
+    @discord.ui.button(label='1', row=1)
+    async def one(self, button: discord.Button, interaction: discord.Interaction):
+        self.expression += f'{button.label}'
+        self.len_check()
+        await self.set_embed(interaction=interaction)
+
+    @discord.ui.button(label='2', row=1)
+    async def two(self, button: discord.Button, interaction: discord.Interaction):
+        self.expression += f'{button.label}'
+        self.len_check()
+        await self.set_embed(interaction=interaction)
+
+    @discord.ui.button(label='3', row=1)
+    async def three(self, button: discord.Button, interaction: discord.Interaction):
+        self.expression += f'{button.label}'
+        self.len_check()
+        await self.set_embed(interaction=interaction)
+
+    @discord.ui.button(label='*', row=1)
+    async def multiplication(self, button: discord.Button, interaction: discord.Interaction):
+        self.expression += f'{button.label}'
+        self.len_check()
+        await self.set_embed(interaction=interaction)
+
+    @discord.ui.button(label='4', row=2)
+    async def four(self, button: discord.Button, interaction: discord.Interaction):
+        self.expression += f'{button.label}'
+        self.len_check()
+        await self.set_embed(interaction=interaction)
+
+    @discord.ui.button(label='5', row=2)
+    async def five(self, button: discord.Button, interaction: discord.Interaction):
+        self.expression += f'{button.label}'
+        self.len_check()
+        await self.set_embed(interaction=interaction)
+
+    @discord.ui.button(label='6', row=2)
+    async def six(self, button: discord.Button, interaction: discord.Interaction):
+        self.expression += f'{button.label}'
+        self.len_check()
+        await self.set_embed(interaction=interaction)
+
+    @discord.ui.button(label='-', row=2)
+    async def minus(self, button: discord.Button, interaction: discord.Interaction):
+        self.expression += f'{button.label}'
+        self.len_check()
+        await self.set_embed(interaction=interaction)
+
+    @discord.ui.button(label='7', row=3)
+    async def seven(self, button: discord.Button, interaction: discord.Interaction):
+        self.expression += f'{button.label}'
+        self.len_check()
+        await self.set_embed(interaction=interaction)
+
+    @discord.ui.button(label='8', row=3)
+    async def eight(self, button: discord.Button, interaction: discord.Interaction):
+        self.expression += f'{button.label}'
+        self.len_check()
+        await self.set_embed(interaction=interaction)
+
+    @discord.ui.button(label='9', row=3)
+    async def nine(self, button: discord.Button, interaction: discord.Interaction):
+        self.expression += f'{button.label}'
+        self.len_check()
+        await self.set_embed(interaction=interaction)
+
+    @discord.ui.button(label='+', row=3)
+    async def plus(self, button: discord.Button, interaction: discord.Interaction):
+        self.expression += f'{button.label}'
+        self.len_check()
+        await self.set_embed(interaction=interaction)
+
+    @discord.ui.button(label='Close', row=4, style=discord.ButtonStyle.red)
+    async def Close(self, button: discord.Button, interaction: discord.Interaction):
+        await interaction.message.delete()
+
+    @discord.ui.button(label='0', row=4)
+    async def zero(self, button: discord.Button, interaction: discord.Interaction):
+        self.expression += f'{button.label}'
+        self.len_check()
+        await self.set_embed(interaction=interaction)
+
+    @discord.ui.button(label='=', row=4, style=discord.ButtonStyle.green)
+    async def Equals(self, button: discord.Button, interaction: discord.Interaction):
+        await self.set_embed(interaction=interaction, description=eval(self.expression))
+        self.stop()
+
