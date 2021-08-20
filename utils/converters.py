@@ -170,9 +170,8 @@ class SourceConverter(commands.Converter):
 
 
 class CodeConverter(commands.Converter):
-
     async def convert(self, ctx: CustomContext, argument: str):
-        if argument.startswith('```py') and argument.endswith('```'):
+        if argument.startswith("```py") and argument.endswith("```"):
             argument = argument[5:-3]
 
         return argument

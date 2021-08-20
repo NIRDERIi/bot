@@ -5,8 +5,8 @@ from utils.buttons import Paginator
 from bot import CustomContext, Bot
 import more_itertools
 
-MYSTB_DOCUMENTS = 'https://mystb.in/documents'
-MYSTB_FORMAT = 'https://mystb.in/{key}'
+MYSTB_DOCUMENTS = "https://mystb.in/documents"
+MYSTB_FORMAT = "https://mystb.in/{key}"
 
 
 async def get_group_help(ctx: CustomContext, group: commands.Group):
@@ -21,7 +21,7 @@ async def get_group_help(ctx: CustomContext, group: commands.Group):
         embed = discord.Embed(
             title=f"{group.qualified_name} commands group.",
             description="Subcommands:\n",
-            color=discord.Colour.blurple()
+            color=discord.Colour.blurple(),
         )
 
         for command in command_tuple:
@@ -50,15 +50,15 @@ def get_divmod(seconds: int):
     )
     return days, hours, minutes, seconds
 
+
 async def paste(bot: Bot, text: str):
 
-    data = bytes(text, encoding='utf-8')
+    data = bytes(text, encoding="utf-8")
     async with bot.session.post(url=MYSTB_DOCUMENTS, data=data) as response:
 
         if response.status != 200:
-            raise ProcessError(f'Unexpected error with return status {response.status}')
-        raw_json = await response.json(content_type=None, encoding='utf-8')
-        key = raw_json.get('key')
+            raise ProcessError(f"Unexpected error with return status {response.status}")
+        raw_json = await response.json(content_type=None, encoding="utf-8")
+        key = raw_json.get("key")
         full_link = MYSTB_FORMAT.format(key=key)
         return full_link
-
