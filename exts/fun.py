@@ -43,7 +43,7 @@ class Fun(commands.Cog):
                 output += "\n... | (too many lines)"
             content += f'\n```{output}```'
             if too_long:
-                url = await paste(self.bot, '\n'.join([f'{str(index + 1).zfill(3)} | {line}' for index, line in enumerate(lines)]))
+                url = await paste(self.bot, '\n'.join([line for _, line in enumerate(lines)]))
                 content += f"\nFull output in: {url}"
             await ctx.send(content=content)
 
