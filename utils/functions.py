@@ -1,8 +1,12 @@
+from utils.errors import ProcessError
 import discord
 from discord.ext import commands
 from utils.buttons import Paginator
-from bot import CustomContext
+from bot import CustomContext, Bot
 import more_itertools
+
+MYSTB_DOCUMENTS = 'https://mystb.in/documents'
+MYSTB_FORMAT = 'https://mystb.in/{key}'
 
 
 async def get_group_help(ctx: CustomContext, group: commands.Group):
@@ -45,3 +49,16 @@ def get_divmod(seconds: int):
         round(seconds),
     )
     return days, hours, minutes, seconds
+
+async def paste(bot: Bot, text: str):
+
+    data = bytes(text, encoding='utf-8')
+    async with bot.session.post(url=MYSTB_DOCUMENTS, data=data) as response:
+
+        if response.status != 200:
+            raise ProcessError(f'Unexpected error with return status {response.status}')
+        raw_json = await response.json(content_type=None, encoding='utf-8')
+        key = raw_json.get('key')
+        full_link = MYSTB_FORMAT.format(key=key)
+        return full_link
+
