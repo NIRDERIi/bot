@@ -321,8 +321,8 @@ class ButtonCalculator(discord.ui.View):
         self.len_check()
         await self.set_embed(interaction=interaction)
 
-    @discord.ui.button(label="Close", row=4, style=discord.ButtonStyle.red) 
-    async def Close(self, button: discord.Button, interaction: discord.Interaction): 
+    @discord.ui.button(label="Close", row=4, style=discord.ButtonStyle.red)
+    async def Close(self, button: discord.Button, interaction: discord.Interaction):
         self.stop()
         await interaction.message.delete()
 
