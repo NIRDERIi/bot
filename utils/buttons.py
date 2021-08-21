@@ -190,10 +190,17 @@ class ButtonCalculator(discord.ui.View):
 
         super().__init__(timeout=timeout)
         self.ctx = ctx
-        self.interaction_check = check
+        self.check = check
         self.expression = ""
         self.base_embed = embed
         self.base_embed.description = "```>```"
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        bool_check = await self.check(interaction=interaction)
+        if not bool_check:
+            await interaction.response.send_message(content='This is noy your calculator session, please open your own.')
+            return False
+        return True
 
     async def set_embed(
         self, interaction: discord.Interaction, description: str = None
