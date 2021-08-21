@@ -198,7 +198,7 @@ class ButtonCalculator(discord.ui.View):
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         bool_check = await self.check(interaction=interaction)
         if not bool_check:
-            await interaction.response.send_message(content='This is noy your calculator session, please open your own.')
+            await interaction.response.send_message(content='This is not your calculator session, please make your own.', ephemeral=True)
             return False
         return True
 
