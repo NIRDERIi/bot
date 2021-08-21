@@ -8,17 +8,16 @@ import discord
 import time
 
 
-class utility(commands.Cog):
+class Info(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
     @commands.command(
-        name="bot-info",
         description="Sends general info about the bot.",
         aliases=["ping", "latency"],
     )
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def botinfo(self, ctx: CustomContext) -> None:
+    async def info(self, ctx: CustomContext) -> None:
         # Getting api latency
         api_start_time = time.time()
         message = await ctx.send("Testing latency...")
@@ -108,4 +107,4 @@ class utility(commands.Cog):
 
 
 def setup(bot: Bot):
-    bot.add_cog(utility(bot))
+    bot.add_cog(Info(bot))
