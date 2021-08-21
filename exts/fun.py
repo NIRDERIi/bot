@@ -101,7 +101,7 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def news(self, ctx: CustomContext, *keywords):
-        url = f"https://api.currentsapi.services/v1/search?apiKey={os.getenv('CURRENTS_API')}&language=en&limit=10"
+        url = f"https://api.currentsapi.services/v1/search?apiKey={os.getenv('CURRENTS_API')}&language=en&limit=20"
 
         if keywords:
             url += f"&keywords={' '.join(keywords)}"
@@ -118,20 +118,11 @@ class Fun(commands.Cog):
             time = f"{time[0].replace('-', '/')} {time[1]}"
             title = news.get("title")
             image = news.get("image")
-            author = news.get("author")
             content = news.get("description")
 
         embed = discord.Embed(
             title=title, url=url, description=content, color=discord.Colour.blurple()
         )
-        author_url = None
-        if isinstance(author, list):
-            author = author[0]["name"]
-            author_url = author[0]["url"]
-        if author_url:
-            embed.set_author(name=author, url=author_url)
-        else:
-            embed.set_author(name=author)
         if image:
             embed.set_image(url=image)
         if time:
