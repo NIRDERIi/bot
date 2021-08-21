@@ -74,7 +74,7 @@ class Fun(commands.Cog):
         calculator = Calculator(ctx, timeout=20.0)
         self.running_calc.append(ctx.author.id)
         view: discord.ui.View = await calculator.run(
-            embed=discord.Embed(title="Math genius.", color=discord.Colour.blurple())
+            embed=discord.Embed(title="Math genius.", color=discord.Colour.blurple()).set_thumbnail(url=self.bot.user.avatar.url)
         )
         await view.wait()
         self.running_calc.remove(ctx.author.id)
