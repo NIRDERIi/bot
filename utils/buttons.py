@@ -1,9 +1,9 @@
-import discord
 from bot import CustomContext
-import typing
-import contextlib
 from utils.constants import Emojis
 from utils.errors import ProcessError
+import discord
+import typing
+import contextlib
 
 
 class Paginator:
@@ -198,7 +198,10 @@ class ButtonCalculator(discord.ui.View):
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         bool_check = await self.check(interaction=interaction)
         if not bool_check:
-            await interaction.response.send_message(content='This is not your calculator session, please make your own.', ephemeral=True)
+            await interaction.response.send_message(
+                content="This is not your calculator session, please make your own.",
+                ephemeral=True,
+            )
             return False
         return True
 
@@ -320,6 +323,7 @@ class ButtonCalculator(discord.ui.View):
 
     @discord.ui.button(label="Close", row=4, style=discord.ButtonStyle.red)
     async def Close(self, button: discord.Button, interaction: discord.Interaction):
+        self.stop()
         await interaction.message.delete()
 
     @discord.ui.button(label="0", row=4)
