@@ -8,7 +8,7 @@ from utils.converters import CodeConverter
 from utils.buttons import Calculator
 
 
-class fun(commands.Cog):
+class Fun(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
         self.snekbox_url = "http://localhost:8060/eval"
@@ -83,4 +83,4 @@ class fun(commands.Cog):
 
 
 def setup(bot: Bot):
-    bot.add_cog(fun(bot))
+    bot.add_cog(Fun(bot))
