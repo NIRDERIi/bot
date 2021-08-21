@@ -336,11 +336,11 @@ class ButtonCalculator(discord.ui.View):
     async def Equals(self, button: discord.Button, interaction: discord.Interaction):
         output = ""
         try:
-            output = f'{self.expression} = {eval(self.expression)}'
+            output = f"{self.expression} = {eval(self.expression)}"
         except SyntaxError:
             output = "Invalid expression syntax."
         self.base_embed.set_footer(text="Calculator closed.")
-        await self.set_embed(interaction=interaction, description=f'{output}')
+        await self.set_embed(interaction=interaction, description=f"{output}")
         self.stop()
 
         await interaction.message.edit(view=None)

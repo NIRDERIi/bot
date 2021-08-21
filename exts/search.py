@@ -136,7 +136,6 @@ class Search(commands.Cog):
         embed.set_thumbnail(url=General.github_icon)
         await ctx.send(embed=embed)
 
-
     @github.command(
         name="repo",
         description="Shows info about a specific repo.",
@@ -207,7 +206,7 @@ class Search(commands.Cog):
                 url=data["owner"]["html_url"],
                 icon_url=data["owner"]["avatar_url"],
             )
-        
+
             if license:
                 embed.set_footer(text=license)
             await ctx.send(embed=embed)

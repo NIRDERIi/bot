@@ -3,8 +3,11 @@ from utils.errors import ProcessError
 from utils.functions import paste
 from discord.ext import commands
 
+import random, os
+from string import ascii_letters
 from bot import Bot, CustomContext
 from utils.converters import CodeConverter
+from utils.constants import Colours, Emojis
 from utils.buttons import Calculator
 
 
@@ -80,6 +83,61 @@ class Fun(commands.Cog):
         )
         await view.wait()
         self.running_calc.remove(ctx.author.id)
+
+    @commands.command()
+    async def password(self, ctx: CustomContext):
+        generated_password = "".join([random.choice(ascii_letters) for _ in range(15)])
+
+        try:
+            embed = discord.Embed(
+                title="Here's your password:",
+                description=f"`{generated_password}`, keep it safe!",
+                color=Colours.invisible,
+            )
+            await ctx.author.send(embed=embed)
+            await ctx.send(f"{Emojis.custom_approval} Successfully sent the password!")
+        except:
+            await ctx.send(f"{Emojis.custom_denial} Could not DM you the password...")
+
+    @commands.command()
+    async def news(self, ctx: CustomContext, *keywords):
+        url = f"https://api.currentsapi.services/v1/search?apiKey={os.getenv('CURRENTS_API')}&language=en&limit=10"
+
+        if keywords:
+            url += f"&keywords={' '.join(keywords)}"
+
+        async with self.bot.session.get(url) as res:
+            json_data = await res.json()
+
+            if not json_data["status"] == "ok":
+                return await ctx.send(f"{Emojis.custom_denial} No news found.")
+
+            news = random.choice(json_data["news"])
+            url = news.get("url")
+            time = news.get("published").split(" ")
+            time = f"{time[0].replace('-', '/')} {time[1]}"
+            title = news.get("title")
+            image = news.get("image")
+            author = news.get("author")
+            content = news.get("description")
+
+        embed = discord.Embed(
+            title=title, url=url, description=content, color=discord.Colour.blurple()
+        )
+        author_url = None
+        if isinstance(author, list):
+            author = author[0]["name"]
+            author_url = author[0]["url"]
+        if author_url:
+            embed.set_author(name=author, url=author_url)
+        else:
+            embed.set_author(name=author)
+        if image:
+            embed.set_image(url=image)
+        if time:
+            embed.set_footer(text=f"Published at {time}")
+
+        await ctx.send(embed=embed)
 
 
 def setup(bot: Bot):
