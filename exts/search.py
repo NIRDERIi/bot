@@ -83,7 +83,7 @@ class Search(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.group(invoke_without_command=True, ignore_extra=False, aliases=["git"])
+    @commands.group(invoke_without_command=True, aliases=["git"])
     async def github(self, ctx: CustomContext) -> None:
         await get_group_help(ctx, ctx.command)
 

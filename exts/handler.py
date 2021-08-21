@@ -110,7 +110,9 @@ class Handler(commands.Cog):
                     datetime.datetime.utcnow(),
                 )
             bug_id = bug_id[0]["bug_id"]
-            embed.title = type(error).__name__
+            embed.title = re.sub(
+                "(?<!^)(?=[A-Z])", " ", str(type(error).__name__)
+            ).capitalize()
             embed.description = f"Unknown error. Please report it in [support server]({General.support_guild_invite}).\n**Bug id:** {bug_id}"
 
         with contextlib.suppress(

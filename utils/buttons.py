@@ -1,9 +1,9 @@
-import discord
 from bot import CustomContext
-import typing
-import contextlib
 from utils.constants import Emojis
 from utils.errors import ProcessError
+import discord
+import typing
+import contextlib
 
 
 class Paginator:
