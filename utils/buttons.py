@@ -336,7 +336,7 @@ class ButtonCalculator(discord.ui.View):
         except SyntaxError:
             output = "Invalid expression syntax."
         self.base_embed.set_footer(text="Calculator closed.")
-        await self.set_embed(interaction=interaction, description=output)
+        await self.set_embed(interaction=interaction, description=f'{self.expression} = {output}')
         self.stop()
 
         await interaction.message.edit(view=None)
