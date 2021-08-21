@@ -44,9 +44,10 @@ class Search(commands.Cog):
     async def youtube(
         self, ctx: CustomContext, *, search_query: Limit(char_limit=75)
     ) -> None:
-        search_result = VideosSearch(search_query, limit=10)
-        search_result = search_result.result()
-        search_result = search_result["result"]
+        search_result = (VideosSearch(search_query, limit=10)
+            .result()
+            .get("result")
+        )
 
         if len(search_result) > 10:
             search_result = search_result[:10]
@@ -119,24 +120,29 @@ class Search(commands.Cog):
         updated_at_time = data.get("updated_at")
         created_at = discord.utils.format_dt(parse(created_at_time), style="f")
         updated_at = discord.utils.format_dt(parse(updated_at_time), style="f")
-        embed = discord.Embed(
-            title="Github user info.",
-            description=f"➥ User ID: {user_id}\n"
-            f"➥ Bio: {bio}\n"
-            f"➥ followers: {followers}\n"
-            f"➥ following: {following}\n",
-            color=discord.Colour.blurple(),
-        )
-        embed.add_field(
-            name="Other informations:",
-            value=f"> Public repos: {repos}\n"
-            f"> Public gists: {gists}\n"
-            f"> created at: {created_at}\n"
-            f"> updated at: {updated_at}\n",
-        )
-        embed.set_author(name=login, url=url, icon_url=avatar_url)
-        embed.set_thumbnail(url=General.github_icon)
-        await ctx.send(embed=embed)
+        await ctx.send(
+            embed=(discord.Embed(
+                title="Github user info.",
+                description=f"➥ User ID: {user_id}\n"
+                f"➥ Bio: {bio}\n"
+                f"➥ followers: {followers}\n"
+                f"➥ following: {following}\n",
+                color=discord.Colour.blurple())
+            .add_field(
+                name="Other informations:",
+                value=f"> Public repos: {repos}\n"
+                f"> Public gists: {gists}\n"
+                f"> created at: {created_at}\n"
+                f"> updated at: {updated_at}\n",
+            )
+            .set_author(
+                name=login, 
+                url=url, 
+                icon_url=avatar_url
+            )
+            .set_thumbnail(
+                url=General.github_icon
+                )))
 
     @github.command(
         name="repo",
@@ -180,7 +186,7 @@ class Search(commands.Cog):
             pushed_at = discord.utils.format_dt(parse(data.get("pushed_at")), style="f")
             license = data.get("license")
             license = license.get("name") if license else None
-            embed = discord.Embed(
+            embed = (discord.Embed(
                 title=data.get("full_name"),
                 description=f"➥ Repository ID: {data.get('id')}\n"
                 f"➥ Description: {repo_description}\n"
@@ -189,25 +195,25 @@ class Search(commands.Cog):
                 url=data.get("html_url"),
                 color=discord.Colour.blurple(),
             )
-            embed.add_field(
+            .add_field(
                 name="Other informations:",
                 value=f"> Open issues: {data.get('open_issues')}\n"
                 f"> Watched by: {data.get('watchers')} users\n"
                 f"> Is fork: {data.get('fork')}\n"
                 f"> Forks: {data.get('forks')}\n",
             )
-            embed.add_field(
+            .add_field(
                 name="_ _",
                 value=f"> Created at: {created_at}\n"
                 f"> Updated at: {updated_at}\n"
                 f"> Pushed at: {pushed_at}\n"
                 f"> Default branch: {data.get('default_branch')}\n",
             )
-            embed.set_author(
+            .set_author(
                 name=data["owner"]["login"],
                 url=data["owner"]["html_url"],
                 icon_url=data["owner"]["avatar_url"],
-            )
+            ))
             if license:
                 embed.set_footer(text=license)
             await ctx.send(embed=embed)

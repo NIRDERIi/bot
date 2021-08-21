@@ -198,7 +198,10 @@ class ButtonCalculator(discord.ui.View):
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         bool_check = await self.check(interaction=interaction)
         if not bool_check:
-            await interaction.response.send_message(content='This is not your calculator session, please make your own.', ephemeral=True)
+            await interaction.response.send_message(
+                content="This is not your calculator session, please make your own.",
+                ephemeral=True,
+            )
             return False
         return True
 
@@ -318,8 +321,9 @@ class ButtonCalculator(discord.ui.View):
         self.len_check()
         await self.set_embed(interaction=interaction)
 
-    @discord.ui.button(label="Close", row=4, style=discord.ButtonStyle.red)
-    async def Close(self, button: discord.Button, interaction: discord.Interaction):
+    @discord.ui.button(label="Close", row=4, style=discord.ButtonStyle.red) 
+    async def Close(self, button: discord.Button, interaction: discord.Interaction): 
+        self.stop()
         await interaction.message.delete()
 
     @discord.ui.button(label="0", row=4)
@@ -336,7 +340,9 @@ class ButtonCalculator(discord.ui.View):
         except SyntaxError:
             output = "Invalid expression syntax."
         self.base_embed.set_footer(text="Calculator closed.")
-        await self.set_embed(interaction=interaction, description=f'{self.expression} = {output}')
+        await self.set_embed(
+            interaction=interaction, description=f"{self.expression} = {output}"
+        )
         self.stop()
 
         await interaction.message.edit(view=None)
