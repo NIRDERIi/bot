@@ -5,6 +5,7 @@ from discord.ext import commands
 
 import random, os
 from string import ascii_letters
+from randfacts import get_fact
 from bot import Bot, CustomContext
 from utils.converters import CodeConverter
 from utils.constants import Colours, Emojis
@@ -129,6 +130,50 @@ class Fun(commands.Cog):
             embed.set_footer(text=f"Published at {time}")
 
         await ctx.send(embed=embed)
+    
+    @commands.command()
+    async def fact(self, ctx: CustomContext):
+        generated_fact = get_fact()
+
+        embed = discord.Embed(
+            description=generated_fact,
+            color=Colours.invisible
+        )
+
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    async def iq(self, ctx: CustomContext, member: discord.Member) -> None:
+        rates = {
+            1: {
+                "from": 1,
+                "to": 50
+            },
+            2: {        
+                "from": 51,
+                "to": 100   
+            },
+            3: {        
+                "from": 101,
+                "to": 150   
+            },
+            4: {        
+                "from": 151,
+                "to": 200 
+            },
+            5: {        
+                "from": 201,
+                "to": 200 
+            },
+            6: {        
+                "from": 251,
+                "to": 300 
+            },
+        }
+        rate = random.choice(rates)
+        iq_rate = random.randint(rates[rate]["from"], rates[rate]["to"])
+
+        await ctx.send(iq_rate)
 
 
 def setup(bot: Bot):
