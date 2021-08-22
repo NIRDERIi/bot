@@ -1,16 +1,14 @@
-import string
-import discord
 from utils.errors import ProcessError
 from utils.functions import paste
 from discord.ext import commands
-
-import random, os
-import string
 from bot import Bot, CustomContext
 from utils.converters import CodeConverter
 from utils.constants import Colours, Emojis
 from utils.buttons import Calculator
-from randfacts import get_fact
+import random
+import string
+import discord
+import os
 
 
 class Fun(commands.Cog):
@@ -139,11 +137,40 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def fact(self, ctx: CustomContext):
-        generated_fact = get_fact()
+        with open("utils/facts.txt", "r") as f:
+            facts = f.read()
 
-        embed = discord.Embed(description=generated_fact, color=Colours.invisible)
+        choice = random.choice(facts.splitlines())
+        await ctx.send(
+            embed=discord.Embed(
+                color=Colours.invisible,
+                description=choice
+            )
+        )
 
-        await ctx.send(embed=embed)
+    @commands.command()
+    async def cat(self, ctx: CustomContext):
+        async with self.bot.session.get(
+            "https://api.thecatapi.com/v1/images/search"
+        ) as response:
+            json_data = await response.json()
+            json_data = random.choice(json_data)
+
+            embed = discord.Embed(color=Colours.invisible)
+            embed.set_image(url=json_data.get("url"))
+            await ctx.send(embed=embed)
+
+    @commands.command()
+    async def dog(self, ctx: CustomContext):
+        async with self.bot.session.get(
+            "https://api.thedogapi.com/v1/images/search"
+        ) as response:
+            json_data = await response.json()
+            json_data = random.choice(json_data)
+
+            embed = discord.Embed(color=Colours.invisible)
+            embed.set_image(url=json_data.get("url"))
+            await ctx.send(embed=embed)
 
 
 def setup(bot: Bot):
