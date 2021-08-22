@@ -7,6 +7,7 @@ Copyright (c) 2021 NIRDERIi, gr-imm
 from discord.ext import commands
 from discord import Intents
 from bot import Bot
+from utils.functions import error_handler
 
 intents = Intents.default()
 intents.members = (
@@ -22,6 +23,7 @@ options = {
 }
 
 bot = Bot(**options)
+bot.on_command_error = error_handler
 
 bot.load_extensions()
 bot.run(bot.retrieve_token)
