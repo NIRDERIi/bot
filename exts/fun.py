@@ -5,12 +5,7 @@ from utils.functions import paste
 from discord.ext import commands
 
 import random, os
-<<<<<<< HEAD
-import string
-=======
-from string import ascii_letters
 from randfacts import get_fact
->>>>>>> e2d9120b51f01fe64e867669dcf89c5b552f356a
 from bot import Bot, CustomContext
 from utils.converters import CodeConverter
 from utils.constants import Colours, Emojis
