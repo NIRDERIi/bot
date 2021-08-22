@@ -5,16 +5,12 @@ from utils.functions import paste
 from discord.ext import commands
 
 import random, os
-<<<<<<< HEAD
 import string
-=======
-from string import ascii_letters
-from randfacts import get_fact
->>>>>>> e2d9120b51f01fe64e867669dcf89c5b552f356a
 from bot import Bot, CustomContext
 from utils.converters import CodeConverter
 from utils.constants import Colours, Emojis
 from utils.buttons import Calculator
+from randfacts import get_fact
 
 
 class Fun(commands.Cog):
@@ -22,7 +18,7 @@ class Fun(commands.Cog):
         self.bot = bot
         self.snekbox_url = "http://localhost:8060/eval"
         self.running_calc = []
-        self.currents_api = os.getenv('CURRENTS_API')
+        self.currents_api = os.getenv("CURRENTS_API")
 
     @commands.command(description="Runs Python code.", aliases=["exec", "execute"])
     async def run(self, ctx: CustomContext, *, code: CodeConverter):
@@ -104,7 +100,9 @@ class Fun(commands.Cog):
             await ctx.author.send(embed=embed)
             await ctx.send(f"{Emojis.custom_approval} Successfully sent the password!")
         except:
-            raise ProcessError(f"{Emojis.custom_denial} Could not DM you the password...")
+            raise ProcessError(
+                f"{Emojis.custom_denial} Could not DM you the password..."
+            )
 
     @commands.command()
     async def news(self, ctx: CustomContext, *keywords):
@@ -115,8 +113,10 @@ class Fun(commands.Cog):
 
         async with self.bot.session.get(url) as response:
             if response.status != 200:
-                raise ProcessError(f'{Emojis.custom_denial} No news found.') #Status might not be 200 or not "ok", not only because 404...
-            data = await response.json(content_type=None, encoding='utf-8')
+                raise ProcessError(
+                    f"{Emojis.custom_denial} No news found."
+                )  # Status might not be 200 or not "ok", not only because 404...
+            data = await response.json(content_type=None, encoding="utf-8")
 
             news = random.choice(data["news"])
             url = news.get("url")
@@ -130,21 +130,18 @@ class Fun(commands.Cog):
             title=title, url=url, description=content, color=discord.Colour.blurple()
         )
         if image:
-            #Someties can cause error, it might return a string of None or none. which raises Scheme error on url.
+            # Someties can cause error, it might return a string of None or none. which raises Scheme error on url.
             embed.set_image(url=image)
         if time:
             embed.set_footer(text=f"Published at {time}")
 
         await ctx.send(embed=embed)
-    
+
     @commands.command()
     async def fact(self, ctx: CustomContext):
         generated_fact = get_fact()
 
-        embed = discord.Embed(
-            description=generated_fact,
-            color=Colours.invisible
-        )
+        embed = discord.Embed(description=generated_fact, color=Colours.invisible)
 
         await ctx.send(embed=embed)
 

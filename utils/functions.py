@@ -89,17 +89,13 @@ async def error_handler(ctx: CustomContext, error: commands.CommandError):
     elif isinstance(error, commands.TooManyArguments):
         embed.description = str(error.args[0])
     elif isinstance(error, commands.MessageNotFound):
-        embed.description = (
-            f"Could not find message by argument: `{error.argument}`"
-        )
+        embed.description = f"Could not find message by argument: `{error.argument}`"
     elif isinstance(error, commands.MemberNotFound):
         embed.description = f"Could not find member by argument: `{error.argument}`"
     elif isinstance(error, commands.UserNotFound):
         embed.description = f"Could not find user by argument: `{error.argument}`"
     elif isinstance(error, commands.ChannelNotFound):
-        embed.description = (
-            f"Could not find channel by argument: `{error.argument}`"
-        )
+        embed.description = f"Could not find channel by argument: `{error.argument}`"
     elif isinstance(error, commands.ChannelNotReadable):
         embed.description = f"I can't read from {error.argument.name}"
     elif isinstance(error, commands.RoleNotFound):
@@ -157,9 +153,7 @@ async def error_handler(ctx: CustomContext, error: commands.CommandError):
                 ctx.author.id,
                 str(error),
                 "\n".join(
-                    traceback.format_exception(
-                        type(error), error, error.__traceback__
-                    )
+                    traceback.format_exception(type(error), error, error.__traceback__)
                 ),
                 datetime.datetime.utcnow(),
             )
