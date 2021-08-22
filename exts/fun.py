@@ -5,7 +5,12 @@ from utils.functions import paste
 from discord.ext import commands
 
 import random, os
+<<<<<<< HEAD
 import string
+=======
+from string import ascii_letters
+from randfacts import get_fact
+>>>>>>> e2d9120b51f01fe64e867669dcf89c5b552f356a
 from bot import Bot, CustomContext
 from utils.converters import CodeConverter
 from utils.constants import Colours, Emojis
@@ -129,6 +134,17 @@ class Fun(commands.Cog):
             embed.set_image(url=image)
         if time:
             embed.set_footer(text=f"Published at {time}")
+
+        await ctx.send(embed=embed)
+    
+    @commands.command()
+    async def fact(self, ctx: CustomContext):
+        generated_fact = get_fact()
+
+        embed = discord.Embed(
+            description=generated_fact,
+            color=Colours.invisible
+        )
 
         await ctx.send(embed=embed)
 
