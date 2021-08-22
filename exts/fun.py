@@ -142,39 +142,6 @@ class Fun(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command()
-    async def iq(self, ctx: CustomContext, member: discord.Member) -> None:
-        rates = {
-            1: {
-                "from": 1,
-                "to": 50
-            },
-            2: {        
-                "from": 51,
-                "to": 100   
-            },
-            3: {        
-                "from": 101,
-                "to": 150   
-            },
-            4: {        
-                "from": 151,
-                "to": 200 
-            },
-            5: {        
-                "from": 201,
-                "to": 200 
-            },
-            6: {        
-                "from": 251,
-                "to": 300 
-            },
-        }
-        rate = random.choice(rates)
-        iq_rate = random.randint(rates[rate]["from"], rates[rate]["to"])
-
-        await ctx.send(iq_rate)
-
 
 def setup(bot: Bot):
     bot.add_cog(Fun(bot))
