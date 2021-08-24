@@ -4,11 +4,12 @@ from discord.ext import commands
 from bot import Bot, CustomContext
 from utils.converters import CodeConverter
 from utils.constants import Colours, Emojis
-from utils.buttons import Calculator
+from utils.buttons import Calculator, XoXo
 import random
 import string
 import discord
 import os
+import typing
 
 
 class Fun(commands.Cog):
@@ -16,6 +17,7 @@ class Fun(commands.Cog):
         self.bot = bot
         self.snekbox_url = "http://localhost:8060/eval"
         self.running_calc = []
+        self.running_xoxo = []
         self.currents_api = os.getenv("CURRENTS_API")
 
     @commands.command(description="Runs Python code.", aliases=["exec", "execute"])
@@ -172,6 +174,24 @@ class Fun(commands.Cog):
             embed.set_image(url=json_data.get("url"))
             await ctx.send(embed=embed)
 
+    @commands.command()
+    async def xoxo(self, ctx: CustomContext, member: discord.Member):
+        if ctx.author.id == member.id:
+            raise ProcessError('You can\'t play against yourself.')
+        if member.bot:
+            raise ProcessError('You can\'t play against a bot.')
+        if ctx.author.id in self.running_xoxo:
+            raise ProcessError(f'{ctx.author.mention}, you already have a game running.')
+        if member.id in self.running_xoxo:
+            raise ProcessError(f'{member.mention} already has a game running.')
+
+        self.running_xoxo.append(ctx.author.id)
+        self.running_xoxo.append(member.id)
+        xoxo_session = XoXo(ctx, ctx.author, member)
+        await xoxo_session.start()
+        await xoxo_session.wait()
+        self.running_xoxo.remove(ctx.author.id)
+        self.running_xoxo.remove(member.id)
 
 def setup(bot: Bot):
     bot.add_cog(Fun(bot))
