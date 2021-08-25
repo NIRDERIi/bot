@@ -1,25 +1,21 @@
-from utils.errors import ProcessError
-from utils.functions import paste
+from ..utilities import errors, functions, constants, converters, buttons
+from ..core import bot, context
 from discord.ext import commands
-from bot import Bot, CustomContext
-from utils.converters import CodeConverter
-from utils.constants import Colours, Emojis
-from utils.buttons import Calculator
 import random
 import string
 import discord
-import os
 
 
 class Fun(commands.Cog):
-    def __init__(self, bot: Bot):
+    def __init__(self, bot: bot.Bot):
         self.bot = bot
         self.snekbox_url = "http://localhost:8060/eval"
         self.running_calc = []
-        self.currents_api = os.getenv("CURRENTS_API")
+        self.running_xoxo = []
+        self.currents_api = bot.config_parser["API Keys"]["CURRENTS"]
 
     @commands.command(description="Runs Python code.", aliases=["exec", "execute"])
-    async def run(self, ctx: CustomContext, *, code: CodeConverter):
+    async def run(self, ctx: context.CustomContext, *, code: converters.CodeConverter):
         try:
             async with self.bot.session.post(
                 url=self.snekbox_url, json={"input": code}
@@ -27,7 +23,7 @@ class Fun(commands.Cog):
 
                 if response.status != 200:
 
-                    raise ProcessError(
+                    raise errors.ProcessError(
                         f"Calling snekbox returned a bad status code: `{response.status}`"
                     )
                 data = await response.json()
@@ -60,22 +56,22 @@ class Fun(commands.Cog):
                     output = "[No output]"
                 content += f"\n```\n{output}\n```"
                 if too_long:
-                    url = await paste(
+                    url = await functions.paste(
                         self.bot, "\n".join([line for _, line in enumerate(lines)])
                     )
                     content += f"\nFull output in: {url}"
                 await ctx.send(content=content)
         except:
-            raise ProcessError("Docker container is currently down.")
+            raise errors.ProcessError("Docker container is currently down.")
 
     @commands.command(
         name="calculator", description="Displays button calculator.", aliases=["calc"]
     )
-    async def _calculator(self, ctx: CustomContext):
+    async def _calculator(self, ctx: context.CustomContext):
         if ctx.author.id in self.running_calc:
-            raise ProcessError("You already have a running calculator.")
+            raise errors.ProcessError("You already have a running calculator.")
 
-        calculator = Calculator(ctx, timeout=20.0)
+        calculator = buttons.Calculator(ctx, timeout=20.0)
         self.running_calc.append(ctx.author.id)
         view: discord.ui.View = await calculator.run(
             embed=discord.Embed(
@@ -86,24 +82,24 @@ class Fun(commands.Cog):
         self.running_calc.remove(ctx.author.id)
 
     @commands.command()
-    async def password(self, ctx: CustomContext):
+    async def password(self, ctx: context.CustomContext):
         generated_password = "".join(random.choices(string.ascii_letters, k=15))
 
         try:
             embed = discord.Embed(
                 title="Here's your password:",
                 description=f"`{generated_password}`, keep it safe!",
-                color=Colours.invisible,
+                color=constants.Colours.invisible,
             )
             await ctx.author.send(embed=embed)
-            await ctx.send(f"{Emojis.custom_approval} Successfully sent the password!")
+            await ctx.send(f"{constants.Emojis.custom_approval} Successfully sent the password!")
         except:
-            raise ProcessError(
-                f"{Emojis.custom_denial} Could not DM you the password..."
+            raise errors.ProcessError(
+                f"{constants.Emojis.custom_denial} Could not DM you the password..."
             )
 
     @commands.command()
-    async def news(self, ctx: CustomContext, *keywords):
+    async def news(self, ctx: context.CustomContext, *keywords):
         url = f"https://api.currentsapi.services/v1/search?apiKey={self.currents_api}&language=en&limit=20"
 
         if keywords:
@@ -111,8 +107,8 @@ class Fun(commands.Cog):
 
         async with self.bot.session.get(url) as response:
             if response.status != 200:
-                raise ProcessError(
-                    f"{Emojis.custom_denial} No news found."
+                raise errors.ProcessError(
+                    f"{constants.Emojis.custom_denial} No news found."
                 )  # Status might not be 200 or not "ok", not only because 404...
             data = await response.json(content_type=None, encoding="utf-8")
 
@@ -135,43 +131,50 @@ class Fun(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command()
-    async def fact(self, ctx: CustomContext):
-        with open("utils/facts.txt", "r") as f:
-            facts = f.read()
-
-        choice = random.choice(facts.splitlines())
-        await ctx.send(
-            embed=discord.Embed(
-                color=Colours.invisible,
-                description=choice
-            )
-        )
 
     @commands.command()
-    async def cat(self, ctx: CustomContext):
+    async def cat(self, ctx: context.CustomContext):
         async with self.bot.session.get(
             "https://api.thecatapi.com/v1/images/search"
         ) as response:
             json_data = await response.json()
             json_data = random.choice(json_data)
 
-            embed = discord.Embed(color=Colours.invisible)
+            embed = discord.Embed(color=constants.Colours.invisible)
             embed.set_image(url=json_data.get("url"))
             await ctx.send(embed=embed)
 
     @commands.command()
-    async def dog(self, ctx: CustomContext):
+    async def dog(self, ctx: context.CustomContext):
         async with self.bot.session.get(
             "https://api.thedogapi.com/v1/images/search"
         ) as response:
             json_data = await response.json()
             json_data = random.choice(json_data)
 
-            embed = discord.Embed(color=Colours.invisible)
+            embed = discord.Embed(color=constants.Colours.invisible)
             embed.set_image(url=json_data.get("url"))
             await ctx.send(embed=embed)
 
+    @commands.command()
+    async def xoxo(self, ctx: context.CustomContext, member: discord.Member):
+        if ctx.author.id == member.id:
+            raise errors.ProcessError('You can\'t play against yourself.')
+        if member.bot:
+            raise errors.ProcessError('You can\'t play against a bot.')
+        if ctx.author.id in self.running_xoxo:
+            raise errors.ProcessError(f'{ctx.author.mention}, you already have a game running.')
+        if member.id in self.running_xoxo:
+            raise errors.ProcessError(f'{member.mention} already has a game running.')
 
-def setup(bot: Bot):
+        self.running_xoxo.append(ctx.author.id)
+        self.running_xoxo.append(member.id)
+        xoxo_session = buttons.XoXo(ctx, ctx.author, member)
+        await xoxo_session.start()
+        await xoxo_session.wait()
+        self.running_xoxo.remove(ctx.author.id)
+        self.running_xoxo.remove(member.id)
+
+
+def setup(bot: bot.Bot):
     bot.add_cog(Fun(bot))

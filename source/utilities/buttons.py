@@ -1,6 +1,5 @@
-from bot import CustomContext
-from utils.constants import Emojis
-from utils.errors import ProcessError
+from ..utilities import functions, constants, errors
+from ..core import context
 import discord
 import typing
 import contextlib
@@ -14,7 +13,7 @@ class Paginator:
 
     def __init__(
         self,
-        ctx: CustomContext,
+        ctx,
         embeds: typing.List[discord.Embed],
         *,
         timeout: typing.Optional[float] = None,
@@ -55,7 +54,7 @@ class ButtonPaginator(discord.ui.View):
         *,
         embeds: typing.List[discord.Embed],
         dct: dict,
-        ctx: CustomContext,
+        ctx,
         timeout: typing.Optional[float],
         check: typing.Callable[..., bool] = None,
     ) -> None:
@@ -69,7 +68,7 @@ class ButtonPaginator(discord.ui.View):
         self.page = 1
         self.embeds = embeds
 
-    @discord.ui.button(emoji=Emojis.double_left_arrows)
+    @discord.ui.button(emoji=constants.Emojis.double_left_arrows)
     async def first_page_get(
         self, button: discord.ui.Button, interaction: discord.Interaction
     ) -> None:
@@ -77,7 +76,7 @@ class ButtonPaginator(discord.ui.View):
         with contextlib.suppress(discord.HTTPException, discord.NotFound):
             await interaction.response.edit_message(embed=self.dct.get(self.page))
 
-    @discord.ui.button(emoji=Emojis.left_arrow)
+    @discord.ui.button(emoji=constants.Emojis.left_arrow)
     async def get_page_down(
         self, button: discord.ui.Button, interaction: discord.Interaction
     ) -> None:
@@ -88,14 +87,14 @@ class ButtonPaginator(discord.ui.View):
             with contextlib.suppress(discord.HTTPException, discord.NotFound):
                 await interaction.response.edit_message(embed=self.dct.get(self.page))
 
-    @discord.ui.button(emoji=Emojis.garbage)
+    @discord.ui.button(emoji=constants.Emojis.garbage)
     async def stop_interaction(
         self, button: discord.ui.Button, interaction: discord.Interaction
     ) -> None:
         with contextlib.suppress(discord.HTTPException, discord.NotFound):
             await interaction.message.delete()
 
-    @discord.ui.button(emoji=Emojis.right_arrow)
+    @discord.ui.button(emoji=constants.Emojis.right_arrow)
     async def get_page_up(
         self, button: discord.ui.Button, interaction: discord.Interaction
     ) -> None:
@@ -106,7 +105,7 @@ class ButtonPaginator(discord.ui.View):
             with contextlib.suppress(discord.HTTPException, discord.NotFound):
                 await interaction.response.edit_message(embed=self.dct.get(self.page))
 
-    @discord.ui.button(emoji=Emojis.double_right_arrows)
+    @discord.ui.button(emoji=constants.Emojis.double_right_arrows)
     async def last_page_get(
         self, button: discord.ui.Button, interaction: discord.Interaction
     ) -> None:
@@ -115,45 +114,10 @@ class ButtonPaginator(discord.ui.View):
             await interaction.response.edit_message(embed=self.dct.get(self.page))
 
 
-class ConfirmButtonBuild(discord.ui.View):
-    def __init__(
-        self,
-        *,
-        timeout: typing.Optional[float],
-        ctx: CustomContext,
-        check: typing.Callable[..., bool] = None,
-    ) -> None:
-        super().__init__(timeout=timeout)
-        self.ctx = ctx
-        if check:
-            self.interaction_check = check
-        self.value = None
-
-    @discord.ui.button(
-        label="Approve", style=discord.ButtonStyle.blurple, emoji=Emojis.custom_approval
-    )
-    async def approval(
-        self, button: discord.ui.Button, interaction: discord.Interaction
-    ) -> None:
-        self.value = True
-        self.stop()
-
-    @discord.ui.button(
-        label="Cancel",
-        style=discord.ButtonStyle.blurple,
-        emoji=Emojis.custom_denial,
-    )
-    async def cancel(
-        self, button: discord.ui.Button, interaction: discord.Interaction
-    ) -> None:
-        self.value = False
-        self.stop()
-
-
 class Calculator:
     def __init__(
         self,
-        ctx: CustomContext,
+        ctx,
         *,
         check: typing.Callable[..., bool] = None,
         timeout: typing.Optional[float] = None,
@@ -181,7 +145,7 @@ class Calculator:
 class ButtonCalculator(discord.ui.View):
     def __init__(
         self,
-        ctx: CustomContext,
+        ctx,
         embed: discord.Embed,
         check: typing.Callable[..., bool],
         *,
@@ -216,7 +180,7 @@ class ButtonCalculator(discord.ui.View):
     def len_check(self):
         if len(self.expression) > 25:
             self.stop()
-            raise ProcessError("The expression can't be longer than 15 chars.")
+            raise errors.ProcessError("The expression can't be longer than 15 chars.")
 
     @discord.ui.button(label="C", row=0)
     async def clear(self, button: discord.Button, interaction: discord.Interaction):
@@ -345,7 +309,141 @@ class ButtonCalculator(discord.ui.View):
 
         await interaction.message.edit(view=None)
 
-    @discord.ui.button(emoji=Emojis.backspace, row=4)
+    @discord.ui.button(emoji=constants.Emojis.backspace, row=4)
     async def backspace(self, button: discord.Button, interaction: discord.Interaction):
         self.expression = self.expression[:-1]
         await self.set_embed(interaction=interaction)
+
+class XoXo:
+
+    def __init__(self, ctx: context.CustomContext, player1: discord.Member, player2: discord.Member):
+
+        self.ctx = ctx
+        if player1.id == player2.id:
+            raise errors.ProcessError('You can\'t play against yourself.')
+        if player2.bot:
+            raise errors.ProcessError('You can\'t play against a bot.')
+        self.player1 = player1
+        self.player2 = player2
+
+    async def start(self):
+        xoxo = XoXoButtons(ctx=self.ctx, player1=self.player1, player2=self.player2)
+        await self.ctx.send(f'Start the game! :x: {self.player1.mention} goes first.', view=xoxo)
+        return xoxo
+
+class XoXoButtons(discord.ui.View):
+    
+    def __init__(self, ctx: context.CustomContext, player1: discord.Member, player2: discord.Member, timeout=20.0):
+        super().__init__(timeout=timeout)
+        self.ctx = ctx
+        if player1.id == player2.id:
+            raise errors.ProcessError('You can\'t play against yourself.')
+        if player2.bot:
+            raise errors.ProcessError('You can\'t play against a bot.')
+        self.player1 = XoXoPlayer(player1, '❌')
+        self.player2 = XoXoPlayer(player2, '🔴')
+        self.current_player = self.player1
+        self.winning_options = ([1,2,3], [4,5,6], [7,8,9], [1,4,7], [2,5,8], [3,6,9], [1,5,9], [3,5,7])
+
+    async def on_error(self, error: Exception, item: discord.ui.Item, interaction: discord.Interaction) -> None:
+        await functions.error_handler(self.ctx, error=error)
+
+    async def is_ended(self, player):
+        if not isinstance(player, XoXoPlayer):
+            raise errors.ProcessError('Internal issue, invalid player input.')
+        player_selected = player.selected_options
+        for winning_option in self.winning_options:
+            if all(selection in player_selected for selection in winning_option):
+                await self.run_won(player)
+
+    async def is_tied(self):
+        if len(self.player2.selected_options) + len(self.player1.selected_options) == 9:
+            await self.run_tie()
+        
+
+    async def run_won(self, player):
+        embed = discord.Embed(title='XoXo match ended.', description=f'{player.member.name} won the XoXo match!')
+        await self.ctx.send(embed=embed)
+        self.stop()
+
+    async def run_tie(self):
+        embed = discord.Embed(title='TicTacToe match tied.')
+        await self.ctx.send(embed=embed)
+        self.stop()
+
+    def other_player(self, player=None):
+        player = player or self.current_player
+        if player.id == self.player1.id:
+            return self.player2
+        return self.player1
+
+    async def handler(self, button: discord.Button, interaction: discord.Interaction, selection: int):
+        self.current_player.add_select(selection)
+        await self.is_ended(self.current_player)
+        other_player_match = self.other_player()
+        await self.is_ended(other_player_match)
+        await self.is_tied()
+        button.disabled = True
+        button.label = self.current_player.emoji
+        self.current_player = other_player_match
+        await interaction.message.edit(content=f'{self.current_player.member.mention} your turn!', view=self)
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if interaction.user.id == self.current_player.id:
+            return True
+        other_player = self.other_player()
+        if interaction.user.id == other_player.id:
+            await interaction.response.send_message(f'{other_player.member.mention}, this isn\'t your turn!')
+            return False
+        await interaction.response.send_message(f'{interaction.user.mention} you are not part of this XoXo session.')
+    
+    @discord.ui.button(label='\u200b', row=0)
+    async def one(self, button: discord.Button, interaction: discord.Interaction):
+        await self.handler(button, interaction, 1)
+
+    @discord.ui.button(label='\u200b', row=0)
+    async def two(self, button: discord.Button, interaction: discord.Interaction):
+        await self.handler(button, interaction, 2)
+
+    @discord.ui.button(label='\u200b', row=0)
+    async def three(self, button: discord.Button, interaction: discord.Interaction):
+        await self.handler(button, interaction, 3)
+
+    @discord.ui.button(label='\u200b', row=1)
+    async def four(self, button: discord.Button, interaction: discord.Interaction):
+        await self.handler(button, interaction, 4)
+
+    @discord.ui.button(label='\u200b', row=1)
+    async def five(self, button: discord.Button, interaction: discord.Interaction):
+        await self.handler(button, interaction, 5)
+    
+    @discord.ui.button(label='\u200b', row=1)
+    async def six(self, button: discord.Button, interaction: discord.Interaction):
+        await self.handler(button, interaction, 6)
+
+    @discord.ui.button(label='\u200b', row=2)
+    async def seven(self, button: discord.Button, interaction: discord.Interaction):
+        await self.handler(button, interaction, 7)
+
+    @discord.ui.button(label='\u200b', row=2)
+    async def eight(self, button: discord.Button, interaction: discord.Interaction):
+        await self.handler(button, interaction, 8)
+
+    @discord.ui.button(label='\u200b', row=2)
+    async def nine(self, button: discord.Button, interaction: discord.Interaction):
+        await self.handler(button, interaction, 9)
+
+
+class XoXoPlayer:
+
+    def __init__(self, member: discord.Member, emoji):
+        self.member = member
+        self.selected_options = []
+        self.emoji = emoji
+
+    def add_select(self, selection: int):
+        self.selected_options.append(selection)
+
+    @property
+    def id(self):
+        return self.member.id

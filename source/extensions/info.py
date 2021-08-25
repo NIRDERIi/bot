@@ -1,7 +1,5 @@
-from utils.converters import Limit
-from utils.functions import get_divmod
-from utils.constants import General, Emojis
-from bot import Bot, CustomContext
+from ..utilities import converters, functions, constants
+from ..core import context, bot
 from discord.ext import commands
 import datetime
 import discord
@@ -9,7 +7,7 @@ import time
 
 
 class Info(commands.Cog):
-    def __init__(self, bot: Bot):
+    def __init__(self, bot: bot.Bot):
         self.bot = bot
 
     @commands.command(
@@ -17,7 +15,7 @@ class Info(commands.Cog):
         aliases=["ping", "latency"],
     )
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def info(self, ctx: CustomContext) -> None:
+    async def info(self, ctx: context.CustomContext) -> None:
         # Getting api latency
         api_start_time = time.time()
         message = await ctx.send("Testing latency...")
@@ -38,7 +36,7 @@ class Info(commands.Cog):
         users_count = len(self.bot.users)
 
         # Defining the uptime message
-        days, hours, minutes, seconds = get_divmod(
+        days, hours, minutes, seconds = functions.get_divmod(
             (datetime.datetime.utcnow() - self.bot.uptime).total_seconds()
         )
         uptime_message = ""
@@ -70,7 +68,7 @@ class Info(commands.Cog):
             f"- Database: `{db_ms}ms`\n"
             f"➥ Servers count: {guilds_count}\n"
             f"➥ Users count: {users_count}\n"
-            f"➥ [Invite link]({General.invite_link}) - [Support server]({General.support_guild_invite})",
+            f"➥ [Invite link]({constants.General.invite_link}) - [Support server]({constants.General.support_guild_invite})",
         )
         embed.set_footer(text="©️ *****#0005, NIR#9473")
         embed.set_thumbnail(url=self.bot.user.avatar.url)
@@ -81,8 +79,8 @@ class Info(commands.Cog):
 
     @commands.command(aliases=["report", "suggest"])
     @commands.cooldown(1, 10, commands.BucketType.member)
-    async def contact(self, ctx: CustomContext, *, bug: Limit(125)):
-        reports_channel = General.support_guild(self.bot).get_channel(
+    async def contact(self, ctx: context.CustomContext, *, bug: converters.Limit(125)):
+        reports_channel = constants.General.support_guild(self.bot).get_channel(
             877633500780593273
         )
         if not reports_channel:
@@ -99,12 +97,12 @@ class Info(commands.Cog):
             )
             await ctx.send(
                 ":mailbox_with_mail: {} Thanks for the feedback, we'll check it as soon as possible!".format(
-                    Emojis.custom_approval
+                    constants.Emojis.custom_approval
                 )
             )
         except:
             pass
 
 
-def setup(bot: Bot):
+def setup(bot: bot.Bot):
     bot.add_cog(Info(bot))

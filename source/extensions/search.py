@@ -1,11 +1,7 @@
-from utils.buttons import Paginator
-from utils.functions import get_group_help, get_divmod
-from utils.constants import General
-from utils.converters import Limit, SourceConverter
-from utils.errors import ProcessError
+from ..utilities import buttons, functions, constants, converters, errors
+from ..core import bot, context
 from discord.ext import commands
 from dateutil.parser import parse
-from bot import Bot, CustomContext
 from youtubesearchpython import (
     VideosSearch,
 )
@@ -24,7 +20,7 @@ statuses = {
 
 
 class Search(commands.Cog):
-    def __init__(self, bot: Bot) -> None:
+    def __init__(self, bot: bot.Bot) -> None:
         self.bot = bot
         self.statuses = statuses
         self.bad_status = "Couldn't fetch data, returned status: {status}"
@@ -42,7 +38,7 @@ class Search(commands.Cog):
     )
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def youtube(
-        self, ctx: CustomContext, *, search_query: Limit(char_limit=75)
+        self, ctx: context.CustomContext, *, search_query: converters.Limit(char_limit=75)
     ) -> None:
         search_result = VideosSearch(search_query, limit=10).result().get("result")
 
@@ -82,11 +78,11 @@ class Search(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.group(invoke_without_command=True, aliases=["git"])
-    async def github(self, ctx: CustomContext) -> None:
-        await get_group_help(ctx, ctx.command)
+    async def github(self, ctx: context.CustomContext) -> None:
+        await functions.get_group_help(ctx, ctx.command)
 
     @github.command(name="user", description="Shows info about github user.")
-    async def github_user(self, ctx: CustomContext, *, name: Limit(char_limit=50)):
+    async def github_user(self, ctx: context.CustomContext, *, name: converters.Limit(char_limit=50)):
         async with self.bot.session.get(
             url=f"{self.github_api}/users/{name}"
         ) as response:
@@ -96,14 +92,14 @@ class Search(commands.Cog):
                     status=response.status
                 )
                 if data.get("retry_after"):
-                    days, hours, minutes, seconds = get_divmod(
+                    days, hours, minutes, seconds = functions.get_divmod(
                         int(message.get("retry_after"))
                     )
                     message += (
                         f"Retry after: {days}d, {hours}h, {minutes}m and {seconds}s."
                     )
 
-                raise ProcessError(message)
+                raise errors.ProcessError(message)
         login = data.get("login")
         user_id = data.get("id")
         avatar_url = data.get("avatar_url")
@@ -133,7 +129,7 @@ class Search(commands.Cog):
             f"> updated at: {updated_at}\n",
         )
         embed.set_author(name=login, url=url, icon_url=avatar_url)
-        embed.set_thumbnail(url=General.github_icon)
+        embed.set_thumbnail(url=constants.General.github_icon)
         await ctx.send(embed=embed)
 
     @github.command(
@@ -141,9 +137,9 @@ class Search(commands.Cog):
         description="Shows info about a specific repo.",
         aliases=["repository"],
     )
-    async def github_repo(self, ctx: CustomContext, *, query: Limit(char_limit=100)):
+    async def github_repo(self, ctx: context.CustomContext, *, query: converters.Limit(char_limit=100)):
         if query.count("/") != 1:
-            raise ProcessError(
+            raise errors.ProcessError(
                 f"Invalid input. Please make sure this is the format you use: USERNAME/REPONAME"
             )
         async with self.bot.session.get(
@@ -155,14 +151,14 @@ class Search(commands.Cog):
                     status=response.status
                 )
                 if data.get("retry_after"):
-                    days, hours, minutes, seconds = get_divmod(
+                    days, hours, minutes, seconds = functions.get_divmod(
                         int(message.get("retry_after"))
                     )
                     message += (
                         f"Retry after: {days}d, {hours}h, {minutes}m and {seconds}s."
                     )
 
-                raise ProcessError(message)
+                raise errors.ProcessError(message)
 
             repo_description = (
                 data.get("description")[:50] if data.get("description") else "None"
@@ -213,32 +209,32 @@ class Search(commands.Cog):
 
     @commands.command(description="Searches for source data.")
     async def source(
-        self, ctx: CustomContext, *, source_item: typing.Optional[SourceConverter]
+        self, ctx: context.CustomContext, *, source_item: typing.Optional[converters.SourceConverter]
     ):
 
         if not source_item:
             source_item = {
                 "Bot repository.": {
                     "description": "Bot developed in Python meant for moderational and fun purposes.",
-                    "repo_link": General.basic_repo,
+                    "repo_link": constants.General.basic_repo,
                 }
             }
 
         async def check(interaction: discord.Interaction):
             return interaction.user.id == ctx.author.id
 
-        paginator = Paginator(ctx=ctx, embeds=[], timeout=20.0, check=check)
+        paginator = buttons.Paginator(ctx=ctx, embeds=[], timeout=20.0, check=check)
         for name, data in source_item.items():
             repo_link = data.get("repo_link")
             description = f"[Click here]({repo_link}) for source link."
             embed = discord.Embed(
                 title=name, description=description, color=discord.Colour.blurple()
             )
-            embed.set_thumbnail(url=General.github_icon)
+            embed.set_thumbnail(url=constants.General.github_icon)
             paginator.add_embed(embed)
 
         await paginator.run()
 
 
-def setup(bot: Bot):
+def setup(bot: bot.Bot):
     bot.add_cog(Search(bot))

@@ -1,23 +1,41 @@
-import discord
+from ..utilities import errors, constants
+from ..core import context
 from discord.ext import commands
-from bot import Bot, CustomContext
-from utils.errors import ProcessError
-import pathlib
+import discord
 import inspect
-from utils.constants import General
 import typing
+import pathlib
 import importlib
 
+
+class AsciiLimit(commands.Converter):
+    def __init__(self, max_characters: int) -> None:
+        self.max_characters = max_characters
+
+    async def convert(
+        self, ctx: commands.Context, argument: str
+    ) -> typing.Union[discord.Message, str]:
+        if len(argument) > self.max_characters:
+            return await ctx.send(
+                "You've exceeded the max ({}) character limit".format(
+                    self.max_characters
+                )
+            )
+
+        if not argument.isascii():
+            return await ctx.send("Only ASCII characters are allowed!".format(argument))
+
+        return argument
 
 class Limit(commands.Converter):
     def __init__(self, char_limit: int = None):
         self.char_limit = char_limit
 
-    async def convert(self, ctx: CustomContext, argument: str):
+    async def convert(self, ctx: context.CustomContext, argument: str):
 
         if self.char_limit:
             if len(argument) > self.char_limit:
-                raise ProcessError(
+                raise errors.ProcessError(
                     f"You exceeded the set char limit: `{self.char_limit}`"
                 )
 
@@ -26,10 +44,10 @@ class Limit(commands.Converter):
 
 
 class TimeConverter(commands.Converter):
-    async def convert(self, ctx: CustomContext, argument: str) -> int:
+    async def convert(self, ctx: context.CustomContext, argument: str) -> int:
 
         if argument.isdigit() or argument.isnumeric():
-            raise ProcessError("Time must have one time extension: (s, m, h, d, w)")
+            raise errors.ProcessError("Time must have one time extension: (s, m, h, d, w)")
 
         time_extensions = {
             "s": 1,
@@ -43,7 +61,7 @@ class TimeConverter(commands.Converter):
         arg_number = int(argument[:-1])
 
         if arg_extension not in time_extensions:
-            raise ProcessError(
+            raise errors.ProcessError(
                 "Time extension should be either: s, m, h, d, w (got extension: {})".format(
                     arg_extension
                 )
@@ -53,14 +71,14 @@ class TimeConverter(commands.Converter):
 
 
 class SourceConverter(commands.Converter):
-    async def convert(self, ctx: CustomContext, argument: str):
+    async def convert(self, ctx: context.CustomContext, argument: str):
 
         if ".env" in argument:
-            raise ProcessError("Your messages contains a forbidden file.")
+            raise errors.ProcessError("Your messages contains a forbidden file.")
 
         results = {}  # {'name': {description: 'something', 'repo_link': 'link'}}
 
-        bot: Bot = ctx.bot
+        bot = ctx.bot
 
         command: typing.Optional[commands.Command] = bot.get_command(argument.lower())
         if command:
@@ -75,7 +93,7 @@ class SourceConverter(commands.Converter):
             pathlib_path = [path_data for path_data in iterable][0]
             short_path = "/".join(pathlib_path.parts)
 
-            full_link = f"{General.basic_repo}/blob/master/{short_path}#L{starting_line}-L{ending_line}"
+            full_link = f"{constants.General.basic_repo}/blob/master/{short_path}#L{starting_line}-L{ending_line}"
             results[f"Command: {command.qualified_name}"] = {
                 "description": command.description,
                 "repo_link": full_link,
@@ -88,7 +106,7 @@ class SourceConverter(commands.Converter):
             pathlib_path = [path_data for path_data in iterable][0]
             short_path = "/".join(pathlib_path.parts).lower()
 
-            full_link = f"{General.basic_repo}/blob/master/{short_path}"
+            full_link = f"{constants.General.basic_repo}/blob/master/{short_path}"
             results[f"Cog: {cog.qualified_name}"] = {
                 "description": cog.__doc__,
                 "repo_link": full_link,
@@ -101,7 +119,7 @@ class SourceConverter(commands.Converter):
         pathlib_paths_list = [i for i in iterable]
         if pathlib_paths_list:
             short_path = "/".join(pathlib_paths_list[0].parts)
-            full_link = f"{General.basic_repo}/blob/master/{short_path}"
+            full_link = f"{constants.General.basic_repo}/blob/master/{short_path}"
             filename_source = short_path.split("/")[-1]
             results[f"File: {filename_source}"] = {
                 "description": None,
@@ -133,7 +151,7 @@ class SourceConverter(commands.Converter):
         all_functions = list(set(all_functions))
 
         if not all_classes and not all_functions and not results:
-            raise ProcessError(
+            raise errors.ProcessError(
                 f"Could not convert {argument} to a valid command, cog, file, function or a class."
             )
 
@@ -146,7 +164,7 @@ class SourceConverter(commands.Converter):
             lines, starting_line = inspect.getsourcelines(_class)
             ending_line = len(lines) + starting_line - 1
 
-            full_link = f"{General.basic_repo}/blob/master/{short_path}#L{starting_line}-L{ending_line}"
+            full_link = f"{constants.General.basic_repo}/blob/master/{short_path}#L{starting_line}-L{ending_line}"
             results[f"Class: {argument}"] = {
                 "description": _class.__doc__,
                 "repo_link": full_link,
@@ -161,16 +179,15 @@ class SourceConverter(commands.Converter):
             lines, starting_line = inspect.getsourcelines(_class)
             ending_line = len(lines) + starting_line - 1
 
-            full_link = f"{General.basic_repo}/blob/master/{short_path}#L{starting_line}-L{ending_line}"
+            full_link = f"{constants.General.basic_repo}/blob/master/{short_path}#L{starting_line}-L{ending_line}"
             results[f"Function: {argument}"] = {
                 "description": _class.__doc__,
                 "repo_link": full_link,
             }
         return results
 
-
 class CodeConverter(commands.Converter):
-    async def convert(self, ctx: CustomContext, argument: str):
+    async def convert(self, ctx: commands.Context, argument: str):
         if argument.startswith("```py") and argument.endswith("```"):
             argument = argument[5:-3]
 
